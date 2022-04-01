@@ -24,6 +24,10 @@
 #include "SDL_rwops.h"
 #include "SDL_audio.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAD_INPUT_BUFFER_SIZE	(5*8192)
 #define MAD_OUTPUT_BUFFER_SIZE	8192
 
@@ -67,3 +71,7 @@ int mad_isPlaying(mad_data *mp3_mad);
 
 void mad_getSamples(mad_data *mp3_mad, Uint8 *stream, int len);
 void mad_seek(mad_data *mp3_mad, double position);
+
+#ifdef __cplusplus
+}
+#endif

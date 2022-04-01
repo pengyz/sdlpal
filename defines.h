@@ -23,7 +23,7 @@
 #define _DEFINES_H
 
 #ifndef PAL_LOCALIZATION_EXT
-# define PAL_LOCALIZATION_EXT "slf"
+#define PAL_LOCALIZATION_EXT "slf"
 #endif
 
-#endif //_DEFINES_H
+#endif  //_DEFINES_H

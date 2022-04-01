@@ -53,7 +53,7 @@
 
 #define PAL_HAS_PLATFORM_SPECIFIC_UTILS 1
 
-PAL_C_LINKAGE_BEGIN
+
 
 LPCSTR
 UTIL_BasePath(
@@ -70,7 +70,7 @@ UTIL_CachePath(
    VOID
 );
 
-PAL_C_LINKAGE_END
+
 
 #include <sys/time.h>
 

@@ -24,13 +24,6 @@
 
 #include "common.h"
 
-PAL_C_LINKAGE
-VOID
-PAL_RNGPlay(
-   INT           iNumRNG,
-   INT           iStartFrame,
-   INT           iNumFrames,
-   INT           iSpeed
-);
+VOID PAL_RNGPlay(INT iNumRNG, INT iStartFrame, INT iNumFrames, INT iSpeed);
 
 #endif

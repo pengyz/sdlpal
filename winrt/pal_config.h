@@ -62,14 +62,14 @@
 #define strncasecmp _strnicmp
 #define wcsdup _wcsdup
 
-PAL_C_LINKAGE char* strcasestr(const char *, const char *);
+char* strcasestr(const char *, const char *);
 #define PAL_NEED_STRCASESTR 1
 
 #if WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP
 #define PAL_HAS_GLSL 1
 #endif
 
-PAL_C_LINKAGE_BEGIN
+
 
 LPCSTR
 UTIL_BasePath(
@@ -96,4 +96,4 @@ UTIL_TouchEnabled(
    VOID
 );
 
-PAL_C_LINKAGE_END
+

@@ -21,17 +21,14 @@
 // multipass shader preset header by palxex, 2018
 //
 
-
 #ifndef video_glsl_h
 #define video_glsl_h
 
 #include "main.h"
 
 #if PAL_HAS_GLSL
-# include "mini_glloader.h"
+#include "mini_glloader.h"
 #endif
-
-PAL_C_LINKAGE_BEGIN
 
 extern SDL_Texture *VIDEO_GLSL_CreateTexture(int width, int height);
 extern void VIDEO_GLSL_RenderCopy();
@@ -40,7 +37,5 @@ extern void VIDEO_GLSL_Init();
 extern void VIDEO_GLSL_Setup();
 
 extern void VIDEO_GLSL_Destroy();
-
-PAL_C_LINKAGE_END
 
 #endif /* video_glsl_h */

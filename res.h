@@ -24,55 +24,31 @@
 
 #include "common.h"
 
-typedef enum tagLOADRESFLAG
-{
-   kLoadGlobalData     = (1 << 0),    // load global data
-   kLoadScene          = (1 << 1),    // load a scene
-   kLoadPlayerSprite   = (1 << 2),    // load player sprites
-} LOADRESFLAG, *LPLOADRESFLAG;
+typedef enum tagLOADRESFLAG {
+  kLoadGlobalData = (1 << 0),    // load global data
+  kLoadScene = (1 << 1),         // load a scene
+  kLoadPlayerSprite = (1 << 2),  // load player sprites
+} LOADRESFLAG,
+    *LPLOADRESFLAG;
 
-PAL_C_LINKAGE_BEGIN
+VOID PAL_InitResources(VOID);
 
-VOID
-PAL_InitResources(
-   VOID
-);
+VOID PAL_FreeResources(VOID);
 
-VOID
-PAL_FreeResources(
-   VOID
-);
+VOID PAL_SetLoadFlags(BYTE bFlags);
 
-VOID
-PAL_SetLoadFlags(
-   BYTE       bFlags
-);
-
-VOID
-PAL_LoadResources(
-   VOID
-);
+VOID PAL_LoadResources(VOID);
 
 LPPALMAP
-PAL_GetCurrentMap(
-   VOID
-);
+PAL_GetCurrentMap(VOID);
 
 LPSPRITE
-PAL_GetPlayerSprite(
-   BYTE      bPlayerIndex
-);
+PAL_GetPlayerSprite(BYTE bPlayerIndex);
 
 LPSPRITE
-PAL_GetBattleSprite(
-   BYTE      bPlayerIndex
-);
+PAL_GetBattleSprite(BYTE bPlayerIndex);
 
 LPSPRITE
-PAL_GetEventObjectSprite(
-   WORD      wEventObjectID
-);
-
-PAL_C_LINKAGE_END
+PAL_GetEventObjectSprite(WORD wEventObjectID);
 
 #endif

@@ -24,36 +24,14 @@
 
 #include "common.h"
 
-PAL_C_LINKAGE_BEGIN
+VOID PAL_EndingSetEffectSprite(WORD wSpriteNum);
 
-VOID
-PAL_EndingSetEffectSprite(
-   WORD         wSpriteNum
-);
+VOID PAL_ShowFBP(WORD wChunkNum, WORD wFade);
 
-VOID
-PAL_ShowFBP(
-   WORD         wChunkNum,
-   WORD         wFade
-);
+VOID PAL_ScrollFBP(WORD wChunkNum, WORD wScrollSpeed, BOOL fScrollDown);
 
-VOID
-PAL_ScrollFBP(
-   WORD         wChunkNum,
-   WORD         wScrollSpeed,
-   BOOL         fScrollDown
-);
+VOID PAL_EndingAnimation(VOID);
 
-VOID
-PAL_EndingAnimation(
-   VOID
-);
-
-VOID
-PAL_EndingScreen(
-   VOID
-);
-
-PAL_C_LINKAGE_END
+VOID PAL_EndingScreen(VOID);
 
 #endif

@@ -24,18 +24,18 @@
 #define mini_glloader_h
 
 #if __IOS__
-#include <SDL_opengles.h>
-#include <SDL_opengles2.h>
 #include <OpenGLES/ES3/gl.h>
 #include <OpenGLES/ES3/glext.h>
+#include <SDL_opengles.h>
+#include <SDL_opengles2.h>
 #define glGenVertexArrays glGenVertexArraysOES
 #define glBindVertexArray glBindVertexArrayOES
 #else
 #ifdef __APPLE__
 #define GL_GLEXT_PROTOTYPES
 #endif
-#include <SDL_video.h>
 #include <SDL_opengl.h>
+#include <SDL_video.h>
 #endif
 
 #if __IOS__ || __ANDROID__ || __EMSCRIPTEN__ || __WINRT__ || SDL_VIDEO_DRIVER_RPI
@@ -45,7 +45,7 @@
 
 #if !defined(__APPLE__)
 
-//avoid manually imported glfuncs conflicts with platform-builtin ones, like emscripten
+// avoid manually imported glfuncs conflicts with platform-builtin ones, like emscripten
 #define glCreateShader _glCreateShader
 #define glShaderSource _glShaderSource
 #define glCompileShader _glCompileShader

@@ -23,10 +23,8 @@
 #define FONT_H
 
 #include "common.h"
-#include "palcommon.h"
 #include "palcfg.h"
-
-PAL_C_LINKAGE_BEGIN
+#include "palcommon.h"
 
 extern char *font_offset_x;
 extern char *font_offset_y;
@@ -44,15 +42,9 @@ extern char *font_offset_y;
 
     0 = success, -1 = failure.
 --*/
-int
-PAL_InitFont(
-	const CONFIGURATION* cfg
-);
+int PAL_InitFont(const CONFIGURATION *cfg);
 
-void
-PAL_FreeFont(
-	void
-);
+void PAL_FreeFont(void);
 
 /*++
   Purpose:
@@ -74,14 +66,8 @@ PAL_FreeFont(
     None.
 
 --*/
-void
-PAL_DrawCharOnSurface(
-	uint16_t                 wChar,
-	SDL_Surface             *lpSurface,
-	PAL_POS                  pos,
-	uint8_t                  bColor,
-	BOOL                     fUse8x8Font
-);
+void PAL_DrawCharOnSurface(uint16_t wChar, SDL_Surface *lpSurface, PAL_POS pos, uint8_t bColor,
+                           BOOL fUse8x8Font);
 
 /*++
   Purpose:
@@ -97,10 +83,7 @@ PAL_DrawCharOnSurface(
     The width of the character in pixels, 16 for full-width char and 8 for half-width char.
 
 --*/
-int
-PAL_CharWidth(
-	uint16_t                 wChar
-);
+int PAL_CharWidth(uint16_t wChar);
 
 /*++
   Purpose:
@@ -116,11 +99,6 @@ PAL_CharWidth(
     The height of the font in pixels.
 
 --*/
-int
-PAL_FontHeight(
-	void
-);
-
-PAL_C_LINKAGE_END
+int PAL_FontHeight(void);
 
 #endif

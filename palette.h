@@ -24,58 +24,20 @@
 
 #include "common.h"
 
-PAL_C_LINKAGE_BEGIN
+SDL_Color* PAL_GetPalette(INT iPaletteNum, BOOL fNight);
 
-SDL_Color *
-PAL_GetPalette(
-   INT         iPaletteNum,
-   BOOL        fNight
-);
+VOID PAL_SetPalette(INT iPaletteNum, BOOL fNight);
 
-VOID
-PAL_SetPalette(
-   INT         iPaletteNum,
-   BOOL        fNight
-);
+VOID PAL_FadeOut(INT iDelay);
 
-VOID
-PAL_FadeOut(
-   INT         iDelay
-);
+VOID PAL_FadeIn(INT iPaletteNum, BOOL fNight, INT iDelay);
 
-VOID
-PAL_FadeIn(
-   INT         iPaletteNum,
-   BOOL        fNight,
-   INT         iDelay
-);
+VOID PAL_SceneFade(INT iPaletteNum, BOOL fNight, INT iStep);
 
-VOID
-PAL_SceneFade(
-   INT         iPaletteNum,
-   BOOL        fNight,
-   INT         iStep
-);
+VOID PAL_PaletteFade(INT iPaletteNum, BOOL fNight, BOOL fUpdateScene);
 
-VOID
-PAL_PaletteFade(
-   INT         iPaletteNum,
-   BOOL        fNight,
-   BOOL        fUpdateScene
-);
+VOID PAL_ColorFade(INT iDelay, BYTE bColor, BOOL fFrom);
 
-VOID
-PAL_ColorFade(
-   INT        iDelay,
-   BYTE       bColor,
-   BOOL       fFrom
-);
-
-VOID
-PAL_FadeToRed(
-   VOID
-);
-
-PAL_C_LINKAGE_END
+VOID PAL_FadeToRed(VOID);
 
 #endif

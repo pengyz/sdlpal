@@ -27,67 +27,45 @@
 
 #include "common.h"
 
-typedef struct tagAUDIOPLAYER
-{
-#define AUDIOPLAYER_COMMONS \
-    INT                        iMusic;  \
-    BOOL                       fLoop; \
-	VOID (*Shutdown)(VOID*); \
-	BOOL (*Play)(VOID*, INT, BOOL, FLOAT); \
-	VOID (*FillBuffer)(VOID*, LPBYTE, INT)
+typedef struct tagAUDIOPLAYER {
+#define AUDIOPLAYER_COMMONS   \
+  INT iMusic;                 \
+  BOOL fLoop;                 \
+  VOID(*Shutdown)             \
+  (VOID *);                   \
+  BOOL(*Play)                 \
+  (VOID *, INT, BOOL, FLOAT); \
+  VOID(*FillBuffer)           \
+  (VOID *, LPBYTE, INT)
 
-	AUDIOPLAYER_COMMONS;
+  AUDIOPLAYER_COMMONS;
 } AUDIOPLAYER, *LPAUDIOPLAYER;
-
-PAL_C_LINKAGE_BEGIN
 
 /* RIX */
 
-LPAUDIOPLAYER
-RIX_Init(
-   LPCSTR     szFileName
-);
+LPAUDIOPLAYER RIX_Init(LPCSTR szFileName);
 
 /* OGG */
 
-LPAUDIOPLAYER
-OGG_Init(
-	VOID
-);
+LPAUDIOPLAYER OGG_Init(VOID);
 
 /* OPUS */
 
 LPAUDIOPLAYER
-OPUS_Init(
-	VOID
-);
+OPUS_Init(VOID);
 
 /* MP3 */
 
-LPAUDIOPLAYER
-MP3_Init(
-	VOID
-);
+LPAUDIOPLAYER MP3_Init(VOID);
 
 /* TIMIDITY */
 
-LPAUDIOPLAYER
-TIMIDITY_Init(
-	VOID
-);
+LPAUDIOPLAYER TIMIDITY_Init(VOID);
 
 /* TINYSOUNDFONT */
 
-LPAUDIOPLAYER
-TSF_Init(
-	VOID
-);
+LPAUDIOPLAYER TSF_Init(VOID);
 
-LPAUDIOPLAYER
-SOUND_Init(
-	VOID
-);
-
-PAL_C_LINKAGE_END
+LPAUDIOPLAYER SOUND_Init(VOID);
 
 #endif

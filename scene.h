@@ -20,45 +20,20 @@
 //
 
 #ifndef _SCENE_H
-#define	_SCENE_H
+#define _SCENE_H
 
 #include "common.h"
 
-PAL_C_LINKAGE_BEGIN
+VOID PAL_ApplyWave(SDL_Surface *lpSurface);
 
-VOID
-PAL_ApplyWave(
-   SDL_Surface    *lpSurface
-);
+VOID PAL_MakeScene(VOID);
 
-VOID
-PAL_MakeScene(
-   VOID
-);
+BOOL PAL_CheckObstacle(PAL_POS pos, BOOL fCheckEventObjects, WORD wSelfObject);
 
-BOOL
-PAL_CheckObstacle(
-   PAL_POS         pos,
-   BOOL            fCheckEventObjects,
-   WORD            wSelfObject
-);
+VOID PAL_UpdatePartyGestures(BOOL fWalking);
 
-VOID
-PAL_UpdatePartyGestures(
-   BOOL             fWalking
-);
+VOID PAL_UpdateParty(VOID);
 
-VOID
-PAL_UpdateParty(
-   VOID
-);
-
-VOID
-PAL_NPCWalkOneStep(
-   WORD          wEventObjectID,
-   INT           iSpeed
-);
-
-PAL_C_LINKAGE_END
+VOID PAL_NPCWalkOneStep(WORD wEventObjectID, INT iSpeed);
 
 #endif

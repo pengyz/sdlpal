@@ -25,24 +25,10 @@
 #include "common.h"
 #include "ui.h"
 
-PAL_C_LINKAGE_BEGIN
+WORD PAL_ItemSelectMenuUpdate(VOID);
 
-WORD
-PAL_ItemSelectMenuUpdate(
-   VOID
-);
+VOID PAL_ItemSelectMenuInit(WORD wItemFlags);
 
-VOID
-PAL_ItemSelectMenuInit(
-   WORD                      wItemFlags
-);
-
-WORD
-PAL_ItemSelectMenu(
-   LPITEMCHANGED_CALLBACK    lpfnMenuItemChanged,
-   WORD                      wItemFlags
-);
-
-PAL_C_LINKAGE_END
+WORD PAL_ItemSelectMenu(LPITEMCHANGED_CALLBACK lpfnMenuItemChanged, WORD wItemFlags);
 
 #endif

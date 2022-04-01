@@ -24,98 +24,41 @@
 
 #include "common.h"
 
-PAL_C_LINKAGE_BEGIN
+INT PAL_BattleSelectAutoTargetFrom(INT);
 
-INT
-PAL_BattleSelectAutoTargetFrom(
-   INT
-);
+BOOL PAL_IsPlayerDying(WORD);
 
-BOOL
-PAL_IsPlayerDying(
-   WORD
-);
+BOOL PAL_IsPlayerHealthy(WORD wPlayerRole);
 
-BOOL
-PAL_IsPlayerHealthy(
-   WORD     wPlayerRole
-);
-
-INT
-PAL_BattleSelectAutoTarget(
-   VOID
-);
+INT PAL_BattleSelectAutoTarget(VOID);
 
 #ifndef PAL_CLASSIC
 
-VOID
-PAL_UpdateTimeChargingUnit(
-   VOID
-);
+VOID PAL_UpdateTimeChargingUnit(VOID);
 
 FLOAT
-PAL_GetTimeChargingSpeed(
-   WORD           wDexterity
-);
+PAL_GetTimeChargingSpeed(WORD wDexterity);
 
 #endif
 
-VOID
-PAL_BattleUpdateFighters(
-   VOID
-);
+VOID PAL_BattleUpdateFighters(VOID);
 
-VOID
-PAL_BattlePlayerCheckReady(
-   VOID
-);
+VOID PAL_BattlePlayerCheckReady(VOID);
 
-VOID
-PAL_BattleStartFrame(
-   VOID
-);
+VOID PAL_BattleStartFrame(VOID);
 
-VOID
-PAL_BattleCommitAction(
-   BOOL         fRepeat
-);
+VOID PAL_BattleCommitAction(BOOL fRepeat);
 
-VOID
-PAL_BattlePlayerPerformAction(
-   WORD         wPlayerIndex
-);
+VOID PAL_BattlePlayerPerformAction(WORD wPlayerIndex);
 
-VOID
-PAL_BattleEnemyPerformAction(
-   WORD         wEnemyIndex
-);
+VOID PAL_BattleEnemyPerformAction(WORD wEnemyIndex);
 
-VOID
-PAL_BattleShowPlayerPreMagicAnim(
-   WORD         wPlayerIndex,
-   BOOL         fSummon
-);
+VOID PAL_BattleShowPlayerPreMagicAnim(WORD wPlayerIndex, BOOL fSummon);
 
-VOID
-PAL_BattleDelay(
-   WORD       wDuration,
-   WORD       wObjectID,
-   BOOL       fUpdateGesture
-);
+VOID PAL_BattleDelay(WORD wDuration, WORD wObjectID, BOOL fUpdateGesture);
 
-VOID
-PAL_BattleStealFromEnemy(
-   WORD           wTarget,
-   WORD           wStealRate
-);
+VOID PAL_BattleStealFromEnemy(WORD wTarget, WORD wStealRate);
 
-VOID
-PAL_BattleSimulateMagic(
-   SHORT      sTarget,
-   WORD       wMagicObjectID,
-   WORD       wBaseDamage
-);
-
-PAL_C_LINKAGE_END
+VOID PAL_BattleSimulateMagic(SHORT sTarget, WORD wMagicObjectID, WORD wBaseDamage);
 
 #endif

@@ -24,35 +24,14 @@
 
 #include "common.h"
 
-PAL_C_LINKAGE_BEGIN
+VOID PAL_AVIInit(VOID);
 
-VOID
-PAL_AVIInit(
-    VOID
-);
+VOID PAL_AVIShutdown(VOID);
 
-VOID
-PAL_AVIShutdown(
-    VOID
-);
+BOOL PAL_PlayAVI(const char *lpszPath);
 
-BOOL
-PAL_PlayAVI(
-    const char *lpszPath
-);
+void SDLCALL AVI_FillAudioBuffer(void *udata, uint8_t *stream, int len);
 
-void SDLCALL
-AVI_FillAudioBuffer(
-    void       *udata,
-    uint8_t    *stream,
-    int         len
-);
-
-void *
-AVI_GetPlayState(
-	void
-);
-
-PAL_C_LINKAGE_END
+void *AVI_GetPlayState(void);
 
 #endif

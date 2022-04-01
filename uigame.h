@@ -25,78 +25,32 @@
 #include "common.h"
 #include "ui.h"
 
-PAL_C_LINKAGE_BEGIN
+VOID PAL_DrawOpeningMenuBackground(VOID);
 
-VOID
-PAL_DrawOpeningMenuBackground(
-   VOID
-);
+INT PAL_OpeningMenu(VOID);
 
-INT
-PAL_OpeningMenu(
-   VOID
-);
+INT PAL_SaveSlotMenu(WORD wDefaultSlot);
 
-INT
-PAL_SaveSlotMenu(
-   WORD        wDefaultSlot
-);
+WORD PAL_TripleMenu(WORD wThirdWord);
 
-WORD
-PAL_TripleMenu(
-   WORD  wThirdWord
-);
+BOOL PAL_ConfirmMenu(VOID);
 
-BOOL
-PAL_ConfirmMenu(
-   VOID
-);
+BOOL PAL_SwitchMenu(BOOL fEnabled);
 
-BOOL
-PAL_SwitchMenu(
-   BOOL      fEnabled
-);
+VOID PAL_InGameMagicMenu(VOID);
 
-VOID
-PAL_InGameMagicMenu(
-   VOID
-);
+VOID PAL_InGameMenu(VOID);
 
-VOID
-PAL_InGameMenu(
-   VOID
-);
+VOID PAL_PlayerStatus(VOID);
 
-VOID
-PAL_PlayerStatus(
-   VOID
-);
+WORD PAL_ItemUseMenu(WORD wItemToUse);
 
-WORD
-PAL_ItemUseMenu(
-   WORD           wItemToUse
-);
+VOID PAL_BuyMenu(WORD wStoreNum);
 
-VOID
-PAL_BuyMenu(
-   WORD           wStoreNum
-);
+VOID PAL_SellMenu(VOID);
 
-VOID
-PAL_SellMenu(
-   VOID
-);
+VOID PAL_EquipItemMenu(WORD wItem);
 
-VOID
-PAL_EquipItemMenu(
-   WORD           wItem
-);
-
-VOID
-PAL_QuitGame(
-   VOID
-);
-
-PAL_C_LINKAGE_END
+VOID PAL_QuitGame(VOID);
 
 #endif

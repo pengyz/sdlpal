@@ -39,11 +39,7 @@
     None.
 
 --*/
-PAL_C_LINKAGE
-void
-MIDI_SetVolume(
-	int       iVolume
-);
+void MIDI_SetVolume(int iVolume);
 
 /*++
   Purpose:
@@ -61,22 +57,9 @@ MIDI_SetVolume(
     None.
 
 --*/
-PAL_C_LINKAGE
-void
-MIDI_Play(
-	int       iNumRIX,
-	BOOL      fLoop
-);
+void MIDI_Play(int iNumRIX, BOOL fLoop);
 
-PAL_C_LINKAGE
-void
-MIDI_FillBuffer(
-    LPBYTE      stream,
-    INT         len
-);
+void MIDI_FillBuffer(LPBYTE stream, INT len);
 
-PAL_C_LINKAGE
-void
-MIDI_Shutdown(
-);
+void MIDI_Shutdown();
 #endif

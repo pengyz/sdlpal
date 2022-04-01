@@ -62,3 +62,7 @@ extern char const mad_build[];
 #include "frame.h"
 #include "synth.h"
 #include "decoder.h"
+
+#ifdef __cplusplus
+}
+#endif

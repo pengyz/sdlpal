@@ -25,79 +25,53 @@
 #include "common.h"
 #include "palcommon.h"
 
-typedef struct tagPALINPUTSTATE
-{
-   PALDIRECTION           dir, prevdir;
-   DWORD                  dwKeyPress;
+typedef struct tagPALINPUTSTATE {
+  PALDIRECTION dir, prevdir;
+  DWORD dwKeyPress;
 #if PAL_HAS_JOYSTICKS
-   int                    axisX,axisY;
-   BOOL                   joystickNeedUpdate;
+  int axisX, axisY;
+  BOOL joystickNeedUpdate;
 #endif
 } PALINPUTSTATE;
 
-enum PALKEY
-{
-   kKeyNone        = 0,
-   kKeyMenu        = (1 << 0),
-   kKeySearch      = (1 << 1),
-   kKeyDown        = (1 << 2),
-   kKeyLeft        = (1 << 3),
-   kKeyUp          = (1 << 4),
-   kKeyRight       = (1 << 5),
-   kKeyPgUp        = (1 << 6),
-   kKeyPgDn        = (1 << 7),
-   kKeyRepeat      = (1 << 8),
-   kKeyAuto        = (1 << 9),
-   kKeyDefend      = (1 << 10),
-   kKeyUseItem     = (1 << 11),
-   kKeyThrowItem   = (1 << 12),
-   kKeyFlee        = (1 << 13),
-   kKeyStatus      = (1 << 14),
-   kKeyForce       = (1 << 15),
-   kKeyHome        = (1 << 16),
-   kKeyEnd         = (1 << 17),
+enum PALKEY {
+  kKeyNone = 0,
+  kKeyMenu = (1 << 0),
+  kKeySearch = (1 << 1),
+  kKeyDown = (1 << 2),
+  kKeyLeft = (1 << 3),
+  kKeyUp = (1 << 4),
+  kKeyRight = (1 << 5),
+  kKeyPgUp = (1 << 6),
+  kKeyPgDn = (1 << 7),
+  kKeyRepeat = (1 << 8),
+  kKeyAuto = (1 << 9),
+  kKeyDefend = (1 << 10),
+  kKeyUseItem = (1 << 11),
+  kKeyThrowItem = (1 << 12),
+  kKeyFlee = (1 << 13),
+  kKeyStatus = (1 << 14),
+  kKeyForce = (1 << 15),
+  kKeyHome = (1 << 16),
+  kKeyEnd = (1 << 17),
 };
 
-PAL_C_LINKAGE_BEGIN
+VOID PAL_ClearKeyState(VOID);
 
-VOID
-PAL_ClearKeyState(
-   VOID
-);
+VOID PAL_InitInput(VOID);
 
-VOID
-PAL_InitInput(
-   VOID
-);
+VOID PAL_ProcessEvent(VOID);
 
-VOID
-PAL_ProcessEvent(
-   VOID
-);
+VOID PAL_ShutdownInput(VOID);
 
-VOID
-PAL_ShutdownInput(
-   VOID
-);
+VOID PAL_SetTouchBounds(DWORD dwScreenWidth, DWORD dwScreenHeight, SDL_Rect renderRect);
 
-VOID
-PAL_SetTouchBounds(
-   DWORD dwScreenWidth,
-   DWORD dwScreenHeight,
-   SDL_Rect renderRect
-);
-
-VOID
-PAL_RegisterInputFilter(
-   void (*init_filter)(),
-   int (*event_filter)(const SDL_Event *, volatile PALINPUTSTATE *),
-   void (*shutdown_filter)()
-);
+VOID PAL_RegisterInputFilter(void (*init_filter)(),
+                             int (*event_filter)(const SDL_Event *, volatile PALINPUTSTATE *),
+                             void (*shutdown_filter)());
 
 extern volatile PALINPUTSTATE g_InputState;
 
 extern BOOL g_fUseJoystick;
-
-PAL_C_LINKAGE_END
 
 #endif

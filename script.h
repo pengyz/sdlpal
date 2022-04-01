@@ -24,24 +24,12 @@
 
 #include "common.h"
 
-#define PAL_ITEM_DESC_BOTTOM	(1 << 15)
+#define PAL_ITEM_DESC_BOTTOM (1 << 15)
 
-PAL_C_LINKAGE_BEGIN
+WORD PAL_RunTriggerScript(WORD wScriptEntry, WORD wEventObjectID);
 
-WORD
-PAL_RunTriggerScript(
-   WORD           wScriptEntry,
-   WORD           wEventObjectID
-);
+WORD PAL_RunAutoScript(WORD wScriptEntry, WORD wEventObjectID);
 
-WORD
-PAL_RunAutoScript(
-   WORD           wScriptEntry,
-   WORD           wEventObjectID
-);
-
-extern BOOL       g_fScriptSuccess;
-
-PAL_C_LINKAGE_END
+extern BOOL g_fScriptSuccess;
 
 #endif

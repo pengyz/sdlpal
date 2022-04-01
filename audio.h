@@ -24,87 +24,37 @@
 
 #include "common.h"
 
-PAL_C_LINKAGE_BEGIN
+INT AUDIO_OpenDevice(VOID);
 
-INT
-AUDIO_OpenDevice(
-   VOID
-);
+BOOL AUDIO_CD_Available(VOID);
 
-BOOL
-AUDIO_CD_Available(
-   VOID
-);
+VOID AUDIO_CloseDevice(VOID);
 
-VOID
-AUDIO_CloseDevice(
-   VOID
-);
+SDL_AudioSpec* AUDIO_GetDeviceSpec(VOID);
 
-SDL_AudioSpec*
-AUDIO_GetDeviceSpec(
-   VOID
-);
+VOID AUDIO_IncreaseVolume(VOID);
 
-VOID
-AUDIO_IncreaseVolume(
-   VOID
-);
+VOID AUDIO_DecreaseVolume(VOID);
 
-VOID
-AUDIO_DecreaseVolume(
-   VOID
-);
+VOID AUDIO_PlayMusic(INT iNumRIX, BOOL fLoop, FLOAT flFadeTime);
 
-VOID
-AUDIO_PlayMusic(
-   INT       iNumRIX,
-   BOOL      fLoop,
-   FLOAT     flFadeTime
-);
+BOOL AUDIO_PlayCDTrack(INT iNumTrack);
 
-BOOL
-AUDIO_PlayCDTrack(
-   INT    iNumTrack
-);
+VOID AUDIO_PlaySound(INT iSoundNum);
 
-VOID
-AUDIO_PlaySound(
-   INT    iSoundNum
-);
+VOID AUDIO_EnableMusic(BOOL fEnable);
 
-VOID
-AUDIO_EnableMusic(
-   BOOL   fEnable
-);
+BOOL AUDIO_MusicEnabled(VOID);
 
-BOOL
-AUDIO_MusicEnabled(
-   VOID
-);
+VOID AUDIO_EnableSound(BOOL fEnable);
 
-VOID
-AUDIO_EnableSound(
-   BOOL   fEnable
-);
+BOOL AUDIO_SoundEnabled(VOID);
 
-BOOL
-AUDIO_SoundEnabled(
-   VOID
-);
+void AUDIO_Lock(void);
 
-void
-AUDIO_Lock(
-	void
-);
+void AUDIO_Unlock(void);
 
-void
-AUDIO_Unlock(
-	void
-);
-
-PAL_C_LINKAGE_END
-
-#define AUDIO_IsIntegerConversion(a) (((a) % gConfig.iSampleRate) == 0 || (gConfig.iSampleRate % (a)) == 0)
+#define AUDIO_IsIntegerConversion(a) \
+  (((a) % gConfig.iSampleRate) == 0 || (gConfig.iSampleRate % (a)) == 0)
 
 #endif

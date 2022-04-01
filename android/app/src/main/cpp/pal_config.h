@@ -56,7 +56,7 @@
 
 # define PAL_IS_VALID_JOYSTICK(s)  (strcmp((s), "Android Accelerometer") != 0)
 
-PAL_C_LINKAGE_BEGIN
+
 
 LPCSTR
 UTIL_BasePath(
@@ -73,7 +73,7 @@ UTIL_ConfigPath(
    VOID
 );
 
-PAL_C_LINKAGE_END
+
 
 #define PAL_HAS_GLSL 1
 

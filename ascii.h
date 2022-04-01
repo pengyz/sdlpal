@@ -26,6 +26,7 @@
 #error "This file should only be included inside font.c!"
 #endif
 
+// clang-format off
 static unsigned char iso_font[] =
 {
    /*
@@ -577,5 +578,6 @@ static unsigned char iso_font_8x8[256][8] = {
     { 0x00, 0x00, 0x06, 0x3E, 0x66, 0x3E, 0x06, 0x00 },   // U+00FE (thorn)
     { 0x00, 0x33, 0x00, 0x33, 0x33, 0x3E, 0x30, 0x1F }    // U+00FF (y umlaut)
 };
+// clang-format on
 
 #endif
