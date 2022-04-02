@@ -21,24 +21,7 @@
 
 #include "main.h"
 
-SDL_Color *PAL_GetPalette(INT iPaletteNum, BOOL fNight)
-/*++
-  Purpose:
-
-    Get the specified palette in pat.mkf file.
-
-  Parameters:
-
-    [IN]  iPaletteNum - number of the palette.
-
-    [IN]  fNight - whether use the night palette or not.
-
-  Return value:
-
-    Pointer to the palette. NULL if failed.
-
---*/
-{
+SDL_Color *PAL_GetPalette(INT iPaletteNum, BOOL fNight) {
   static SDL_Color palette[256];
   PAL_LARGE BYTE buf[1536];
   INT i;
@@ -79,24 +62,7 @@ SDL_Color *PAL_GetPalette(INT iPaletteNum, BOOL fNight)
   return palette;
 }
 
-VOID PAL_SetPalette(INT iPaletteNum, BOOL fNight)
-/*++
-  Purpose:
-
-    Set the screen palette to the specified one.
-
-  Parameters:
-
-    [IN]  iPaletteNum - number of the palette.
-
-    [IN]  fNight - whether use the night palette or not.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_SetPalette(INT iPaletteNum, BOOL fNight) {
   SDL_Color *p = PAL_GetPalette(iPaletteNum, fNight);
 
   if (p != NULL) {
@@ -104,26 +70,7 @@ VOID PAL_SetPalette(INT iPaletteNum, BOOL fNight)
   }
 }
 
-VOID PAL_FadeOut(INT iDelay)
-/*++
-  Purpose:
-
-    Fadeout screen to black from the specified palette.
-
-  Parameters:
-
-    [IN]  iPaletteNum - number of the palette.
-
-    [IN]  fNight - whether use the night palette or not.
-
-    [IN]  iDelay - delay time for each step.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_FadeOut(INT iDelay) {
   int i, j;
   UINT time;
   PAL_LARGE SDL_Color palette[256];
@@ -165,26 +112,7 @@ VOID PAL_FadeOut(INT iDelay)
   VIDEO_SetPalette(newpalette);
 }
 
-VOID PAL_FadeIn(INT iPaletteNum, BOOL fNight, INT iDelay)
-/*++
-  Purpose:
-
-    Fade in the screen to the specified palette.
-
-  Parameters:
-
-    [IN]  iPaletteNum - number of the palette.
-
-    [IN]  fNight - whether use the night palette or not.
-
-    [IN]  iDelay - delay time for each step.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_FadeIn(INT iPaletteNum, BOOL fNight, INT iDelay) {
   int i, j;
   UINT time;
   SDL_Color *palette;
@@ -224,26 +152,7 @@ VOID PAL_FadeIn(INT iPaletteNum, BOOL fNight, INT iDelay)
   VIDEO_SetPalette(palette);
 }
 
-VOID PAL_SceneFade(INT iPaletteNum, BOOL fNight, INT iStep)
-/*++
-  Purpose:
-
-    Fade in or fade out the screen. Update the scene during the process.
-
-  Parameters:
-
-    [IN]  iPaletteNum - number of the palette.
-
-    [IN]  fNight - whether use the night palette or not.
-
-    [IN]  iStep - positive to fade in, nagative to fade out.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_SceneFade(INT iPaletteNum, BOOL fNight, INT iStep) {
   SDL_Color *palette, newpalette[256];
   int i, j;
   DWORD time;
@@ -325,26 +234,7 @@ VOID PAL_SceneFade(INT iPaletteNum, BOOL fNight, INT iStep)
   }
 }
 
-VOID PAL_PaletteFade(INT iPaletteNum, BOOL fNight, BOOL fUpdateScene)
-/*++
-  Purpose:
-
-    Fade from the current palette to the specified one.
-
-  Parameters:
-
-    [IN]  iPaletteNum - number of the palette.
-
-    [IN]  fNight - whether use the night palette or not.
-
-    [IN]  fUpdateScene - TRUE if update the scene in the progress.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_PaletteFade(INT iPaletteNum, BOOL fNight, BOOL fUpdateScene) {
   int i, j;
   UINT time;
   SDL_Color *newpalette = PAL_GetPalette(iPaletteNum, fNight);
@@ -390,26 +280,7 @@ VOID PAL_PaletteFade(INT iPaletteNum, BOOL fNight, BOOL fUpdateScene)
   }
 }
 
-VOID PAL_ColorFade(INT iDelay, BYTE bColor, BOOL fFrom)
-/*++
-  Purpose:
-
-    Fade the palette from/to the specified color.
-
-  Parameters:
-
-    [IN]  iDelay - the delay time of each step.
-
-    [IN]  bColor - the color to fade from/to.
-
-    [IN]  fFrom - if TRUE then fade from bColor, else fade to bColor.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_ColorFade(INT iDelay, BYTE bColor, BOOL fFrom) {
   SDL_Color *palette;
   PAL_LARGE SDL_Color newpalette[256];
   int i, j;
@@ -488,22 +359,7 @@ VOID PAL_ColorFade(INT iDelay, BYTE bColor, BOOL fFrom)
   }
 }
 
-VOID PAL_FadeToRed(VOID)
-/*++
-  Purpose:
-
-    Fade the whole screen to red color.
-
-  Parameters:
-
-    None.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_FadeToRed(VOID) {
   SDL_Color *palette;
   PAL_LARGE SDL_Color newpalette[256];
   int i, j;

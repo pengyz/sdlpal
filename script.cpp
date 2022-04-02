@@ -27,33 +27,20 @@
 BOOL g_fScriptSuccess = TRUE;
 static int g_iCurEquipPart = -1;
 
-static BOOL PAL_NPCWalkTo(WORD wEventObjectID, INT x, INT y, INT h, INT iSpeed)
-/*++
-  Purpose:
-
-    Make the specified event object walk to the map position specified by (x, y, h)
-    at the speed of iSpeed.
-
-  Parameters:
-
-    [IN]  wEventObjectID - the event object to move.
-
-    [IN]  x - Column number of the tile.
-
-    [IN]  y - Line number in the map.
-
-    [IN]  h - Each line in the map has two lines of tiles, 0 and 1.
-              (See map.h for details.)
-
-    [IN]  iSpeed - the speed to move.
-
-  Return value:
-
-    TRUE if the event object has successfully moved to the specified position,
-    FALSE if still need more moving.
-
---*/
-{
+/**
+ * @brief Make the specified event object walk to the map position specified by (x, y, h)
+ * at the speed of iSpeed.
+ *
+ * @param wEventObjectID the event object to move.
+ * @param x Column number of the tile.
+ * @param y Line number in the map.
+ * @param h Each line in the map has two lines of tiles, 0 and 1.
+ *          (See map.h for details.)
+ * @param iSpeed the speed to move.
+ * @return BOOL   TRUE if the event object has successfully moved to the specified position,
+ *                FALSE if still need more moving.
+ */
+static BOOL PAL_NPCWalkTo(WORD wEventObjectID, INT x, INT y, INT h, INT iSpeed) {
   LPEVENTOBJECT pEvtObj;
   int xOffset, yOffset;
 
@@ -83,30 +70,18 @@ static BOOL PAL_NPCWalkTo(WORD wEventObjectID, INT x, INT y, INT h, INT iSpeed)
   return FALSE;
 }
 
-static VOID PAL_PartyWalkTo(INT x, INT y, INT h, INT iSpeed)
-/*++
-  Purpose:
-
-    Make the party walk to the map position specified by (x, y, h)
-    at the speed of iSpeed.
-
-  Parameters:
-
-    [IN]  x - Column number of the tile.
-
-    [IN]  y - Line number in the map.
-
-    [IN]  h - Each line in the map has two lines of tiles, 0 and 1.
-              (See map.h for details.)
-
-    [IN]  iSpeed - the speed to move.
-
-  Return value:
-
-    None.
-
---*/
-{
+/**
+ * @brief Make the party walk to the map position specified by (x, y, h)
+ *       at the speed of iSpeed.
+ *
+ * @param x Column number of the tile.
+ * @param y Line number in the map.
+ * @param h Each line in the map has two lines of tiles, 0 and 1.
+ *          (See map.h for details.)
+ * @param iSpeed the speed to move.
+ * @return VOID
+ */
+static VOID PAL_PartyWalkTo(INT x, INT y, INT h, INT iSpeed) {
   int xOffset, yOffset, i, dx, dy;
   DWORD t;
 
@@ -168,32 +143,20 @@ static VOID PAL_PartyWalkTo(INT x, INT y, INT h, INT iSpeed)
   PAL_UpdatePartyGestures(FALSE);
 }
 
-static VOID PAL_PartyRideEventObject(WORD wEventObjectID, INT x, INT y, INT h, INT iSpeed)
-/*++
-  Purpose:
-
-    Move the party to the specified position, riding the specified event object.
-
-  Parameters:
-
-    [IN]  wEventObjectID - the event object to be ridden.
-
-    [IN]  x - Column number of the tile.
-
-    [IN]  y - Line number in the map.
-
-    [IN]  h - Each line in the map has two lines of tiles, 0 and 1.
-              (See map.h for details.)
-
-    [IN]  iSpeed - the speed to move.
-
-  Return value:
-
-    TRUE if the party and event object has successfully moved to the specified
-    position, FALSE if still need more moving.
-
---*/
-{
+/**
+ * @brief Move the party to the specified position, riding the specified event object.
+ *
+ * @param wEventObjectID the event object to be ridden.
+ * @param x Column number of the tile.
+ * @param y Line number in the map.
+ * @param h Each line in the map has two lines of tiles, 0 and 1.
+ *          (See map.h for details.)
+ * @param iSpeed the speed to move.
+ * @return VOID (??? wrong)
+ *          TRUE if the party and event object has successfully moved to the specified
+ *          position, FALSE if still need more moving.
+ */
+static VOID PAL_PartyRideEventObject(WORD wEventObjectID, INT x, INT y, INT h, INT iSpeed) {
   int xOffset, yOffset, dx, dy, i;
   DWORD t;
   LPEVENTOBJECT p;
@@ -256,29 +219,17 @@ static VOID PAL_PartyRideEventObject(WORD wEventObjectID, INT x, INT y, INT h, I
   }
 }
 
+/**
+ * @brief Make the specified event object chase the players.
+ *
+ * @param wEventObjectID the event object ID of the monster.
+ * @param wSpeed the speed of chasing.
+ * @param wChaseRange sensitive range of the monster.
+ * @param fFloating TRUE if monster is floating (i.e., ignore the obstacles)
+ * @return VOID
+ */
 static VOID PAL_MonsterChasePlayer(WORD wEventObjectID, WORD wSpeed, WORD wChaseRange,
-                                   BOOL fFloating)
-/*++
-  Purpose:
-
-    Make the specified event object chase the players.
-
-  Parameters:
-
-    [IN]  wEventObjectID - the event object ID of the monster.
-
-    [IN]  wSpeed - the speed of chasing.
-
-    [IN]  wChaseRange - sensitive range of the monster.
-
-    [IN]  fFloating - TRUE if monster is floating (i.e., ignore the obstacles)
-
-  Return value:
-
-    None.
-
---*/
-{
+                                   BOOL fFloating) {
   LPEVENTOBJECT pEvtObj = &gpGlobals->g.lprgEventObject[wEventObjectID - 1];
   WORD wMonsterSpeed = 0, prevx, prevy;
   int x, y, i, j, l;
@@ -396,22 +347,12 @@ static VOID PAL_MonsterChasePlayer(WORD wEventObjectID, WORD wSpeed, WORD wChase
   PAL_NPCWalkOneStep(wEventObjectID, wMonsterSpeed);
 }
 
-VOID PAL_AdditionalCredits(VOID)
-/*++
-  Purpose:
-
-    Show the additional credits.
-
-  Parameters:
-
-    None.
-
-  Return value:
-
-    None.
-
---*/
-{
+/**
+ * @brief Show the additional credits.
+ *
+ * @return VOID
+ */
+VOID PAL_AdditionalCredits(VOID) {
   LPCWSTR rgszcps[][CP_MAX] = {
       // Traditional Chinese, Simplified Chinese
       {L"", L"", /*L""*/},
@@ -477,24 +418,14 @@ VOID PAL_AdditionalCredits(VOID)
   PAL_WaitForKey(0);
 }
 
-static WORD PAL_InterpretInstruction(WORD wScriptEntry, WORD wEventObjectID)
-/*++
-  Purpose:
-
-    Interpret and execute one instruction in the script.
-
-  Parameters:
-
-    [IN]  wScriptEntry - The script entry to execute.
-
-    [IN]  wEventObjectID - The event object ID which invoked the script.
-
-  Return value:
-
-    The address of the next script instruction to execute.
-
---*/
-{
+/**
+ * @brief Interpret and execute one instruction in the script.
+ *
+ * @param wScriptEntry The script entry to execute.
+ * @param wEventObjectID The event object ID which invoked the script.
+ * @return WORD The address of the next script instruction to execute.
+ */
+static WORD PAL_InterpretInstruction(WORD wScriptEntry, WORD wEventObjectID) {
   LPEVENTOBJECT pEvtObj, pCurrent;
   LPSCRIPTENTRY pScript;
   int iPlayerRole, i, j, x, y;
@@ -2677,24 +2608,14 @@ static WORD PAL_InterpretInstruction(WORD wScriptEntry, WORD wEventObjectID)
   return wScriptEntry + 1;
 }
 
-PAL_FORCE_INLINE
-INT MESSAGE_GetSpan(WORD *pwScriptEntry)
-/*++
- Purpose:
-
- Get the final span of a message block which started from message index of wScriptEntry
-
- Parameters:
-
- [IN]  pwScriptEntry - The pointer of script entry which starts the message block, must be a 0xffff
- command.
-
- Return value:
-
- The final span of the message block.
-
- --*/
-{
+/**
+ * @brief Get the final span of a message block which started from message index of wScriptEntry
+ *
+ * @param pwScriptEntry The pointer of script entry which starts the message block, must be a 0xffff
+ *                      command.
+ * @return PAL_FORCE_INLINE The final span of the message block.
+ */
+PAL_FORCE_INLINE INT MESSAGE_GetSpan(WORD *pwScriptEntry) {
   int currentScriptEntry = *pwScriptEntry;
   int result = 0;
   int beginning = 1;
@@ -2730,24 +2651,7 @@ INT MESSAGE_GetSpan(WORD *pwScriptEntry)
   return result;
 }
 
-WORD PAL_RunTriggerScript(WORD wScriptEntry, WORD wEventObjectID)
-/*++
-  Purpose:
-
-    Runs a trigger script.
-
-  Parameters:
-
-    [IN]  wScriptEntry - The script entry to execute.
-
-    [IN]  wEventObjectID - The event object ID which invoked the script.
-
-  Return value:
-
-    The entry point of the script.
-
---*/
-{
+WORD PAL_RunTriggerScript(WORD wScriptEntry, WORD wEventObjectID) {
   static WORD wLastEventObject = 0;
 
   WORD wNextScriptEntry;
@@ -3032,24 +2936,7 @@ WORD PAL_RunTriggerScript(WORD wScriptEntry, WORD wEventObjectID)
   return wNextScriptEntry;
 }
 
-WORD PAL_RunAutoScript(WORD wScriptEntry, WORD wEventObjectID)
-/*++
-  Purpose:
-
-    Runs the autoscript of the specified event object.
-
-  Parameters:
-
-    [IN]  wScriptEntry - The script entry to execute.
-
-    [IN]  wEventObjectID - The event object ID which invoked the script.
-
-  Return value:
-
-    The address of the next script instruction to execute.
-
---*/
-{
+WORD PAL_RunAutoScript(WORD wScriptEntry, WORD wEventObjectID) {
   LPSCRIPTENTRY pScript;
   LPEVENTOBJECT pEvtObj;
 

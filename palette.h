@@ -24,20 +24,78 @@
 
 #include "common.h"
 
+
+/**
+ * @brief Get the specified palette in pat.mkf file.
+ * 
+ * @param iPaletteNum number of the palette.
+ * @param fNight whether use the night palette or not.
+ * @return SDL_Color* Pointer to the palette. NULL if failed.
+ */
 SDL_Color* PAL_GetPalette(INT iPaletteNum, BOOL fNight);
 
+/**
+ * @brief Set the screen palette to the specified one.
+ *
+ * @param iPaletteNum number of the palette.
+ * @param fNight whether use the night palette or not.
+ * @return VOID
+ */
 VOID PAL_SetPalette(INT iPaletteNum, BOOL fNight);
 
+/**
+ * @brief Fadeout screen to black from the specified palette.
+ *
+ * @param iDelay delay time for each step.
+ * @return VOID
+ */
 VOID PAL_FadeOut(INT iDelay);
 
+/**
+ * @brief Fade in the screen to the specified palette.
+ *
+ * @param iPaletteNum number of the palette.
+ * @param fNight whether use the night palette or not.
+ * @param iDelay delay time for each step.
+ * @return VOID
+ */
 VOID PAL_FadeIn(INT iPaletteNum, BOOL fNight, INT iDelay);
 
+/**
+ * @brief Fade in or fade out the screen. Update the scene during the process.
+ *
+ * @param iPaletteNum number of the palette.
+ * @param fNight whether use the night palette or not.
+ * @param iStep positive to fade in, nagative to fade out.
+ * @return VOID
+ */
 VOID PAL_SceneFade(INT iPaletteNum, BOOL fNight, INT iStep);
 
+/**
+ * @brief Fade from the current palette to the specified one.
+ *
+ * @param iPaletteNum number of the palette.
+ * @param fNight whether use the night palette or not.
+ * @param fUpdateScene TRUE if update the scene in the progress.
+ * @return VOID
+ */
 VOID PAL_PaletteFade(INT iPaletteNum, BOOL fNight, BOOL fUpdateScene);
 
+/**
+ * @brief Fade the palette from/to the specified color.
+ *
+ * @param iDelay the delay time of each step.
+ * @param bColor the color to fade from/to.
+ * @param fFrom if TRUE then fade from bColor, else fade to bColor.
+ * @return VOID
+ */
 VOID PAL_ColorFade(INT iDelay, BYTE bColor, BOOL fFrom);
 
+/**
+ * @brief Fade the whole screen to red color.
+ *
+ * @return VOID
+ */
 VOID PAL_FadeToRed(VOID);
 
 #endif

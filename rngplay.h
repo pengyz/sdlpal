@@ -24,6 +24,15 @@
 
 #include "common.h"
 
+/**
+ * @brief Play a RNG movie.
+ *
+ * @param iNumRNG number of the RNG movie.
+ * @param iStartFrame start frame number.
+ * @param iNumFrames end frame number.
+ * @param iSpeed speed of playing.
+ * @return VOID
+ */
 VOID PAL_RNGPlay(INT iNumRNG, INT iStartFrame, INT iNumFrames, INT iSpeed);
 
 #endif

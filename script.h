@@ -26,8 +26,22 @@
 
 #define PAL_ITEM_DESC_BOTTOM (1 << 15)
 
+/**
+ * @brief Runs a trigger script.
+ * 
+ * @param wScriptEntry The script entry to execute.
+ * @param wEventObjectID The event object ID which invoked the script.
+ * @return WORD The entry point of the script.
+ */
 WORD PAL_RunTriggerScript(WORD wScriptEntry, WORD wEventObjectID);
 
+/**
+ * @brief Runs the autoscript of the specified event object.
+ * 
+ * @param wScriptEntry The script entry to execute.
+ * @param wEventObjectID The event object ID which invoked the script.
+ * @return WORD The address of the next script instruction to execute.
+ */
 WORD PAL_RunAutoScript(WORD wScriptEntry, WORD wEventObjectID);
 
 extern BOOL g_fScriptSuccess;

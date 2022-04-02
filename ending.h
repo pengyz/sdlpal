@@ -24,14 +24,45 @@
 
 #include "common.h"
 
+/**
+ * @brief Set the effect sprite of the ending.
+ *
+ * @param wSpriteNum the number of the sprite.
+ * @return VOID
+ */
 VOID PAL_EndingSetEffectSprite(WORD wSpriteNum);
 
+/**
+ * @brief Draw an FBP picture to the screen.
+ *
+ * @param wChunkNum number of chunk in fbp.mkf file.
+ * @param wFade fading speed of showing the picture.
+ * @return VOID
+ */
 VOID PAL_ShowFBP(WORD wChunkNum, WORD wFade);
 
+/**
+ * @brief Scroll up an FBP picture to the screen.
+ *
+ * @param wChunkNum number of chunk in fbp.mkf file.
+ * @param wScrollSpeed scrolling speed of showing the picture.
+ * @param fScrollDown TRUE if scroll down, FALSE if scroll up.
+ * @return VOID
+ */
 VOID PAL_ScrollFBP(WORD wChunkNum, WORD wScrollSpeed, BOOL fScrollDown);
 
+/**
+ * @brief Show the ending animation.
+ *
+ * @return VOID
+ */
 VOID PAL_EndingAnimation(VOID);
 
+/**
+ * @brief Show the ending screen for Win95 version.
+ *
+ * @return VOID
+ */
 VOID PAL_EndingScreen(VOID);
 
 #endif

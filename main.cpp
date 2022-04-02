@@ -101,22 +101,7 @@ static VOID PAL_Init(VOID) {
               (gConfig.fEnableGLSL && gConfig.pszShader ? gConfig.pszShader : "")));
 }
 
-VOID PAL_Shutdown(int exit_code)
-/*++
-  Purpose:
-
-    Free everything needed by the game.
-
-  Parameters:
-
-    exit_code -  The exit code return to OS.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_Shutdown(int exit_code) {
   AUDIO_CloseDevice();
   PAL_AVIShutdown();
   PAL_FreeFont();
@@ -143,22 +128,12 @@ VOID PAL_Shutdown(int exit_code)
 #endif
 }
 
-VOID PAL_TrademarkScreen(VOID)
-/*++
-  Purpose:
-
-    Show the trademark screen.
-
-  Parameters:
-
-    None.
-
-  Return value:
-
-    None.
-
---*/
-{
+/**
+ * @brief Show the trademark screen.
+ *
+ * @return VOID
+ */
+VOID PAL_TrademarkScreen(VOID) {
   if (PAL_PlayAVI("1.avi")) return;
 
   PAL_SetPalette(3, FALSE);
@@ -167,22 +142,12 @@ VOID PAL_TrademarkScreen(VOID)
   PAL_FadeOut(1);
 }
 
-VOID PAL_SplashScreen(VOID)
-/*++
-  Purpose:
-
-    Show the splash screen.
-
-  Parameters:
-
-    None.
-
-  Return value:
-
-    None.
-
---*/
-{
+/**
+ * @brief Show the splash screen.
+ *
+ * @return VOID
+ */
+VOID PAL_SplashScreen(VOID) {
   SDL_Color *palette = PAL_GetPalette(1, FALSE);
   SDL_Color rgCurrentPalette[256];
   SDL_Surface *lpBitmapDown, *lpBitmapUp;
@@ -399,24 +364,14 @@ VOID PAL_SplashScreen(VOID)
   PAL_FadeOut(1);
 }
 
-int main(int argc, char *argv[])
-/*++
-  Purpose:
-
-    Program entry.
-
-  Parameters:
-
-    argc - Number of arguments.
-
-    argv - Array of arguments.
-
-  Return value:
-
-    Integer value.
-
---*/
-{
+/**
+ * @brief Program entry.
+ *
+ * @param argc Number of arguments.
+ * @param argv Array of arguments.
+ * @return int
+ */
+int main(int argc, char *argv[]) {
 #if !defined(__EMSCRIPTEN__) && !defined(__WINRT__) && !defined(__N3DS__)
   memset(gExecutablePath, 0, PAL_MAX_PATH);
   strncpy(gExecutablePath, argv[0], PAL_MAX_PATH);

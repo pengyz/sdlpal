@@ -514,70 +514,285 @@ BOOL PAL_IsWINVersion(BOOL *pfIsWIN95);
 CODEPAGE
 PAL_DetectCodePage(const char *filename);
 
+/**
+ * @brief Initialize global data.
+ *
+ * @return INT 0 = success, -1 = error.
+ */
 INT PAL_InitGlobals(VOID);
 
+/**
+ * @brief Free global data.
+ *
+ * @return VOID
+ */
 VOID PAL_FreeGlobals(VOID);
 
+/**
+ * @brief Save Game
+ *
+ * @param iSaveSlot  Slot to save game.
+ * @param wSavedTimes Save time
+ * @return VOID
+ */
 VOID PAL_SaveGame(int iSaveSlot, WORD wSavedTimes);
 
+/**
+ * @brief Initialize the game data (used when starting a new game or loading a saved game).
+ *
+ * @param iSaveSlot Slot of saved game.
+ * @return VOID
+ */
 VOID PAL_InitGameData(INT iSaveSlot);
 
+/**
+ * @brief Reload the game IN NEXT TICK, avoid reentrant problems.
+ *
+ * @param iSaveSlot Slot of saved game.
+ * @return VOID
+ */
 VOID PAL_ReloadInNextTick(INT iSaveSlot);
 
+/**
+ * @brief Count the specified kind of item in the inventory AND in players' equipments.
+ *
+ * @param wObjectID object number of the item.
+ * @return INT Counted value
+ */
 INT PAL_CountItem(WORD wObjectID);
 
+/**
+ * @brief Add or remove the specified kind of item in the inventory.
+ *
+ * @param wObjectID object number of the item.
+ * @param iNum number to be added (positive value) or removed (negative value).
+ * @return BOOL TRUE if succeeded, FALSE if failed.
+ */
 BOOL PAL_AddItemToInventory(WORD wObjectID, INT iNum);
 
+/**
+ * @brief Increase or decrease player's HP and/or MP.
+ *
+ * @param wPlayerRole the number of player role.
+ * @param sHP number of HP to be increased (positive value) or decrased
+ *             (negative value).
+ * @param sMP number of MP to be increased (positive value) or decrased
+ *             (negative value).
+ * @return BOOL TRUE if the operation is succeeded, FALSE if not.
+ */
 BOOL PAL_IncreaseHPMP(WORD wPlayerRole, SHORT sHP, SHORT sMP);
 
+/**
+ * @brief Get the amount of the specified item in the inventory.
+ *
+ * @param wItem the object ID of the item.
+ * @return INT The amount of the item in the inventory.
+ */
 INT PAL_GetItemAmount(WORD wItem);
 
+/**
+ * @brief Update the effects of all equipped items for all players.
+ *
+ * @return VOID
+ */
 VOID PAL_UpdateEquipments(VOID);
 
+/**
+ * @brief Remove all the items in inventory which has a number of zero.
+ *
+ * @return VOID
+ */
 VOID PAL_CompressInventory(VOID);
 
+/**
+ * @brief Remove all the effects of the equipment for the player.
+ *
+ * @param wPlayerRole the player role.
+ * @param wEquipPart the part of the equipment.
+ * @return VOID
+ */
 VOID PAL_RemoveEquipmentEffect(WORD wPlayerRole, WORD wEquipPart);
 
+/**
+ * @brief Add the specified poison to the player.
+ *
+ * @param wPlayerRole the player role ID.
+ * @param wPoisonID the poison to be added.
+ * @return VOID
+ */
 VOID PAL_AddPoisonForPlayer(WORD wPlayerRole, WORD wPoisonID);
 
+/**
+ * @brief Remove the specified poison from the player.
+ *
+ * @param wPlayerRole the player role ID.
+ * @param wPoisonID the poison to be removed.
+ * @return VOID
+ */
 VOID PAL_CurePoisonByKind(WORD wPlayerRole, WORD wPoisonID);
 
+/**
+ * @brief Remove the poisons which have a maximum level of wMaxLevel from the player.
+ *
+ * @param wPlayerRole the player role ID.
+ * @param wMaxLevel the maximum level of poisons to be removed.
+ * @return VOID
+ */
 VOID PAL_CurePoisonByLevel(WORD wPlayerRole, WORD wMaxLevel);
 
+/**
+ * @brief Check if the player is poisoned by poisons at a minimum level of wMinLevel.
+ *
+ * @param wPlayerRole the player role ID.
+ * @param wMinLevel the minimum level of poison.
+ * @return BOOL TRUE if the player is poisoned by poisons at a minimum level of wMinLevel;
+ *          FALSE if not.
+ */
 BOOL PAL_IsPlayerPoisonedByLevel(WORD wPlayerRole, WORD wMinLevel);
 
+/**
+ * @brief Check if the player is poisoned by the specified poison.
+ *
+ * @param wPlayerRole the player role ID.
+ * @param wPoisonID the poison to be checked.
+ * @return BOOL TRUE if player is poisoned by the specified poison;
+ *          FALSE if not.
+ */
 BOOL PAL_IsPlayerPoisonedByKind(WORD wPlayerRole, WORD wPoisonID);
 
+/**
+ * @brief Get the player's attack strength, count in the effect of equipments.
+ *
+ * @param wPlayerRole the player role ID.
+ * @return WORD The total attack strength of the player.
+ */
 WORD PAL_GetPlayerAttackStrength(WORD wPlayerRole);
 
+/**
+ * @brief Get the player's magic strength, count in the effect of equipments.
+ *
+ * @param wPlayerRole the player role ID.
+ * @return WORD The total magic strength of the player.
+ */
 WORD PAL_GetPlayerMagicStrength(WORD wPlayerRole);
 
+/**
+ * @brief Get the player's defense value, count in the effect of equipments.
+ *
+ * @param wPlayerRole the player role ID.
+ * @return WORD The total defense value of the player.
+ */
 WORD PAL_GetPlayerDefense(WORD wPlayerRole);
 
+/**
+ * @brief Get the player's dexterity, count in the effect of equipments.
+ *
+ * @param wPlayerRole the player role ID.
+ * @return WORD The total dexterity of the player.
+ */
 WORD PAL_GetPlayerDexterity(WORD wPlayerRole);
 
+/**
+ * @brief Get the player's flee rate, count in the effect of equipments.
+ *
+ * @param wPlayerRole the player role ID.
+ * @return WORD The total flee rate of the player.
+ */
 WORD PAL_GetPlayerFleeRate(WORD wPlayerRole);
 
+/**
+ * @brief Get the player's resistance to poisons, count in the effect of equipments.
+ *
+ * @param wPlayerRole the player role ID.
+ * @return WORD The total resistance to poisons of the player.
+ */
 WORD PAL_GetPlayerPoisonResistance(WORD wPlayerRole);
 
+/**
+ * @brief Get the player's resistance to attributed magics, count in the effect
+ *          of equipments.
+ *
+ * @param wPlayerRole the player role ID.
+ * @param iAttrib the attribute of magics.
+ * @return WORD The total resistance to the attributed magics of the player.
+ */
 WORD PAL_GetPlayerElementalResistance(WORD wPlayerRole, INT iAttrib);
 
+/**
+ * @brief Get player's battle sprite.
+ *
+ * @param wPlayerRole the player role ID.
+ * @return WORD Number of the player's battle sprite.
+ */
 WORD PAL_GetPlayerBattleSprite(WORD wPlayerRole);
 
+/**
+ * @brief Get player's cooperative magic.
+ *
+ * @param wPlayerRole the player role ID.
+ * @return WORD Object ID of the player's cooperative magic.
+ */
 WORD PAL_GetPlayerCooperativeMagic(WORD wPlayerRole);
 
+/**
+ * @brief Check if the player can attack all of the enemies in one move.
+ *
+ * @param wPlayerRole the player role ID.
+ * @return BOOL TRUE if player can attack all of the enemies in one move, FALSE if not.
+ */
 BOOL PAL_PlayerCanAttackAll(WORD wPlayerRole);
 
+/**
+ * @brief Add a magic to the player.
+ *
+ * @param wPlayerRole the player role ID.
+ * @param wMagic the object ID of the magic.
+ * @return BOOL TRUE if succeeded, FALSE if failed.
+ */
 BOOL PAL_AddMagic(WORD wPlayerRole, WORD wMagic);
 
+/**
+ * @brief Remove a magic to the player.
+ * 
+ * @param wPlayerRole the player role ID.
+ * @param wMagic the object ID of the magic.
+ * @return VOID 
+ */
 VOID PAL_RemoveMagic(WORD wPlayerRole, WORD wMagic);
 
+/**
+ * @brief Set one of the statuses for the player.
+ * 
+ * @param wPlayerRole the player ID.
+ * @param wStatusID the status to be set.
+ * @param wNumRound the effective rounds of the status.
+ * @return VOID 
+ */
 VOID PAL_SetPlayerStatus(WORD wPlayerRole, WORD wStatusID, WORD wNumRound);
 
+/**
+ * @brief Remove one of the status for player.
+ * 
+ * @param wPlayerRole the player ID.
+ * @param wStatusID the status to be set.
+ * @return VOID 
+ */
 VOID PAL_RemovePlayerStatus(WORD wPlayerRole, WORD wStatusID);
 
+/**
+ * @brief Clear all player status.
+ * 
+ * @return VOID 
+ */
 VOID PAL_ClearAllPlayerStatus(VOID);
 
+/**
+ * @brief Increase the player's level by wLevels.
+ * 
+ * @param wPlayerRole player role ID.
+ * @param wNumLevel number of levels to be increased.
+ * @return VOID 
+ */
 VOID PAL_PlayerLevelUp(WORD wPlayerRole, WORD wNumLevel);
 
 #endif

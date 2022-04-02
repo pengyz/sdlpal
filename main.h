@@ -52,6 +52,12 @@
 #include "util.h"
 #include "video.h"
 
+/**
+ * @brief Free everything needed by the game.
+ * 
+ * @param exit_code The exit code return to OS.
+ * @return VOID 
+ */
 VOID PAL_Shutdown(int exit_code);
 
 extern char gExecutablePath[PAL_MAX_PATH];

@@ -24,33 +24,20 @@
 
 #include "main.h"
 
+/**
+ * @brief Read a frame from a RNG animation.
+ *
+ * @param lpBuffer pointer to the destination buffer.
+ * @param uiBufferSize size of the destination buffer.
+ * @param uiRngNum the number of the RNG animation in the MKF archive.
+ * @param uiFrameNum frame number in the RNG animation.
+ * @param fpRngMKF pointer to the fopen'ed MKF file.
+ * @return INT Integer value which indicates the size of the chunk.
+ *          -1 if there are error in parameters.
+ *          -2 if buffer size is not enough.
+ */
 static INT PAL_RNGReadFrame(LPBYTE lpBuffer, UINT uiBufferSize, UINT uiRngNum, UINT uiFrameNum,
-                            FILE *fpRngMKF)
-/*++
-  Purpose:
-
-    Read a frame from a RNG animation.
-
-  Parameters:
-
-    [OUT] lpBuffer - pointer to the destination buffer.
-
-    [IN]  uiBufferSize - size of the destination buffer.
-
-    [IN]  uiRngNum - the number of the RNG animation in the MKF archive.
-
-    [IN]  uiFrameNum - frame number in the RNG animation.
-
-    [IN]  fpRngMKF - pointer to the fopen'ed MKF file.
-
-  Return value:
-
-    Integer value which indicates the size of the chunk.
-    -1 if there are error in parameters.
-    -2 if buffer size is not enough.
-
---*/
-{
+                            FILE *fpRngMKF) {
   UINT uiOffset = 0;
   UINT uiSubOffset = 0;
   UINT uiNextOffset = 0;
@@ -122,30 +109,19 @@ static INT PAL_RNGReadFrame(LPBYTE lpBuffer, UINT uiBufferSize, UINT uiRngNum, U
   return -1;
 }
 
-static INT PAL_RNGBlitToSurface(const uint8_t *rng, int length, SDL_Surface *lpDstSurface)
-/*++
-  Purpose:
-
-    Blit one frame in an RNG animation to an SDL surface.
-    The surface should contain the last frame of the RNG, or blank if it's the first
-    frame.
-
-    NOTE: Assume the surface is already locked, and the surface is a 320x200 8-bit one.
-
-  Parameters:
-
-    [IN]  rng - Pointer to the RNG data.
-
-    [IN]  length - Length of the RNG data.
-
-    [OUT] lpDstSurface - pointer to the destination SDL surface.
-
-  Return value:
-
-    0 = success, -1 = error.
-
---*/
-{
+/**
+ * @brief Blit one frame in an RNG animation to an SDL surface.
+ * The surface should contain the last frame of the RNG, or blank if it's the first
+ * frame.
+ *
+ * NOTE: Assume the surface is already locked, and the surface is a 320x200 8-bit one.
+ *
+ * @param rng Pointer to the RNG data.
+ * @param length Length of the RNG data.
+ * @param lpDstSurface pointer to the destination SDL surface.
+ * @return INT 0 = success, -1 = error.
+ */
+static INT PAL_RNGBlitToSurface(const uint8_t *rng, int length, SDL_Surface *lpDstSurface) {
   int ptr = 0;
   int dst_ptr = 0;
   uint16_t wdata = 0;
@@ -331,28 +307,7 @@ end:
   return 0;
 }
 
-VOID PAL_RNGPlay(INT iNumRNG, INT iStartFrame, INT iEndFrame, INT iSpeed)
-/*++
-  Purpose:
-
-    Play a RNG movie.
-
-  Parameters:
-
-    [IN]  iNumRNG - number of the RNG movie.
-
-    [IN]  iStartFrame - start frame number.
-
-    [IN]  iEndFrame - end frame number.
-
-    [IN]  iSpeed - speed of playing.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_RNGPlay(INT iNumRNG, INT iStartFrame, INT iEndFrame, INT iSpeed) {
   double iDelay = (double)SDL_GetPerformanceFrequency() / (iSpeed == 0 ? 16 : iSpeed);
   uint8_t *rng = (uint8_t *)malloc(65000);
   uint8_t *buf = (uint8_t *)malloc(65000);

@@ -23,43 +23,9 @@
 
 static WORD g_wCurEffectSprite = 0;
 
-VOID PAL_EndingSetEffectSprite(WORD wSpriteNum)
-/*++
-  Purpose:
+VOID PAL_EndingSetEffectSprite(WORD wSpriteNum) { g_wCurEffectSprite = wSpriteNum; }
 
-    Set the effect sprite of the ending.
-
-  Parameters:
-
-    [IN]  wSpriteNum - the number of the sprite.
-
-  Return value:
-
-    None.
-
---*/
-{
-  g_wCurEffectSprite = wSpriteNum;
-}
-
-VOID PAL_ShowFBP(WORD wChunkNum, WORD wFade)
-/*++
-  Purpose:
-
-    Draw an FBP picture to the screen.
-
-  Parameters:
-
-    [IN]  wChunkNum - number of chunk in fbp.mkf file.
-
-    [IN]  wFade - fading speed of showing the picture.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_ShowFBP(WORD wChunkNum, WORD wFade) {
   PAL_LARGE BYTE buf[320 * 200];
   PAL_LARGE BYTE bufSprite[320 * 200];
   const int rgIndex[6] = {0, 3, 1, 5, 2, 4};
@@ -130,26 +96,7 @@ VOID PAL_ShowFBP(WORD wChunkNum, WORD wFade)
   VIDEO_UpdateScreen(NULL);
 }
 
-VOID PAL_ScrollFBP(WORD wChunkNum, WORD wScrollSpeed, BOOL fScrollDown)
-/*++
-  Purpose:
-
-    Scroll up an FBP picture to the screen.
-
-  Parameters:
-
-    [IN]  wChunkNum - number of chunk in fbp.mkf file.
-
-    [IN]  wScrollSpeed - scrolling speed of showing the picture.
-
-    [IN]  fScrollDown - TRUE if scroll down, FALSE if scroll up.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_ScrollFBP(WORD wChunkNum, WORD wScrollSpeed, BOOL fScrollDown) {
   SDL_Surface *p;
   PAL_LARGE BYTE buf[320 * 200];
   PAL_LARGE BYTE bufSprite[320 * 200];
@@ -240,22 +187,7 @@ VOID PAL_ScrollFBP(WORD wChunkNum, WORD wScrollSpeed, BOOL fScrollDown)
   VIDEO_UpdateScreen(NULL);
 }
 
-VOID PAL_EndingAnimation(VOID)
-/*++
-  Purpose:
-
-    Show the ending animation.
-
-  Parameters:
-
-    None.
-
-  Return value:
-
-    None.
-
---*/
-{
+VOID PAL_EndingAnimation(VOID) {
   LPBYTE buf;
   LPBYTE bufGirl;
   SDL_Surface *pUpper;
@@ -348,22 +280,7 @@ VOID PAL_EndingAnimation(VOID)
   free(bufGirl);
 }
 
-VOID PAL_EndingScreen(VOID)
-/*++
- Purpose:
-
-   Show the ending screen for Win95 version.
-
- Parameters:
-
-   None.
-
- Return value:
-
-   None.
-
---*/
-{
+VOID PAL_EndingScreen(VOID) {
   //
   // Use AVI & WIN95's music if we can
   // Otherwise, simulate the ending of DOS version
