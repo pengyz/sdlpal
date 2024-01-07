@@ -10,3 +10,6 @@
 [submodule "scripts"]
 	path = scripts
 	url = ../scripts.git
+[submodule "editor/deps/imgui"]
+	path = editor/deps/imgui
+	url = git@github.com:ocornut/imgui.git

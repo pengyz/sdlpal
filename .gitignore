@@ -282,3 +282,6 @@ emscripten/*.cpp
 
 # macOS Trashes
 *.DS_Store
+
+# clangd cache dir
+.cache/

@@ -51,8 +51,9 @@ static int _default_input_event_filter(const SDL_Event *event, volatile PALINPUT
 static void _default_input_shutdown_filter() {}
 
 static void (*input_init_filter)() = _default_init_filter;
-static int (*input_event_filter)(const SDL_Event *, volatile PALINPUTSTATE *) = _default_input_event_filter;
+int (*input_event_filter)(const SDL_Event *, volatile PALINPUTSTATE *) = _default_input_event_filter;
 static void (*input_shutdown_filter)() = _default_input_shutdown_filter;
+void (*g_outside_event_handler)(const SDL_Event*) = NULL;
 
 static const int g_KeyMap[][2] = {
    { SDLK_UP,        kKeyUp },
@@ -1212,7 +1213,14 @@ PAL_ProcessEvent(
 #if PAL_HAS_JOYSTICKS
    g_InputState.joystickNeedUpdate = FALSE;
 #endif
-   while (PAL_PollEvent(NULL));
+   SDL_Event evt;
+   while (PAL_PollEvent(&evt))
+   {
+      // process ImGui event
+      if (g_outside_event_handler) {
+         g_outside_event_handler(&evt);
+      }
+   }
 
    PAL_UpdateKeyboardState();
 #if PAL_HAS_JOYSTICKS

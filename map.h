@@ -23,6 +23,7 @@
 #define _MAP_H
 
 #include "common.h"
+#include "palcommon.h"
 
 //
 // Map format:
