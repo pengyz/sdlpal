@@ -32,7 +32,7 @@ typedef struct tagRESOURCES
    LPSPRITE         rglpPlayerSprite[MAX_PLAYABLE_PLAYER_ROLES]; // player sprites
 } RESOURCES, *LPRESOURCES;
 
-static LPRESOURCES gpResources = NULL;
+LPRESOURCES gpResources = NULL;
 
 static VOID
 PAL_FreeEventObjectSprites(

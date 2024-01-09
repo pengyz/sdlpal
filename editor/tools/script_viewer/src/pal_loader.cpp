@@ -5,8 +5,10 @@
 #include "global.h"
 #include "palcfg.h"
 #include "res.h"
+#include "scene.h"
 #include "text.h"
 #include "util.h"
+#include "video.h"
 #include <setjmp.h>
 
 extern "C" {
@@ -53,6 +55,9 @@ VOID PAL_Shutdown(
 }
 }
 
+extern LPRESOURCES gpResources;
+
+
 bool PalLoader::load()
 {
     // load config
@@ -60,6 +65,10 @@ bool PalLoader::load()
     int e = PAL_InitGlobals();
     if (e != 0) {
         TerminateOnError("Could not initialize global data: %d.\n", e);
+    }
+    e = VIDEO_Startup();
+    if (e != 0) {
+        TerminateOnError("Could not initialize Video: %d.\n", e);
     }
     e = PAL_InitText();
     if (e != 0) {
@@ -73,7 +82,7 @@ bool PalLoader::load()
     initResources();
 
     // set load flags
-    gpGlobals->bCurrentSaveSlot = (BYTE)1;
+    gpGlobals->bCurrentSaveSlot = (BYTE)-1;
     setLoadFlags(kLoadGlobalData | kLoadScene | kLoadPlayerSprite);
     gpGlobals->fEnteringScene = TRUE;
     gpGlobals->fNeedToFadeIn = TRUE;
@@ -81,6 +90,7 @@ bool PalLoader::load()
 
     // load resources
     loadResources();
+    ::gpResources = gpResources;
     return true;
 }
 
