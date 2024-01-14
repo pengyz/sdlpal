@@ -38,7 +38,7 @@ bool NativeWindow::init()
     // gpRenderer = _renderer;
     SDL_AddEventWatch(&NativeWindow::resizingEventWatcher, this);
     //创建逻辑texture
-    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     bOk = _initImGui(_renderer);
     if (!bOk) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "initImGui failed !");

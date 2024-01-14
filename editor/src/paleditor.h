@@ -26,6 +26,6 @@ private:
     bool initGameEngine();
 
 private:
-    editor::NativeWindow* _editorWindow = nullptr;
+    editor::NativeWindow* _mainWindow = nullptr;
     engine::GameRenderer* _gameRender = nullptr; // 游戏渲染器
 };

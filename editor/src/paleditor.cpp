@@ -1,4 +1,5 @@
 #include "paleditor.h"
+#include "3rd/SDL/include/SDL_error.h"
 #include "3rd/SDL/include/SDL_events.h"
 #include "3rd/SDL/include/SDL_surface.h"
 #include "3rd/SDL/include/SDL_video.h"
@@ -82,14 +83,14 @@ bool PALEditor::init()
     },
         LOGLEVEL_DEBUG);
 
-    _editorWindow = new editor::NativeWindow(1024, 768, "pal editor");
-    if (!_editorWindow->init()) {
+    _mainWindow = new editor::NativeWindow(1024, 768, "pal editor");
+    if (!_mainWindow->init()) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "initalize editorWindow failed !");
         return false;
     }
     // initialize gameRender
-    _gameRender = new engine::GameRenderer(_editorWindow->getRender());
-    if (!_gameRender->init(_editorWindow->window(), GAME_WIDTH, GAME_HEIGHT)) {
+    _gameRender = new engine::GameRenderer(_mainWindow->getRenderer());
+    if (!_gameRender->init(_mainWindow->window(), GAME_WIDTH, GAME_HEIGHT)) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "init gameRenderer failed !");
         return false;
     }
@@ -97,7 +98,7 @@ bool PALEditor::init()
 #ifndef USE_GAME_RENDERER
     gpScreenReal = _gameRender->getScreenReal();
     gpScreen = _gameRender->getScreen();
-    gpWindow = _editorWindow->window();
+    gpWindow = _mainWindow->window();
     gpRenderer = _gameRender->getRenderer();
     gpScreenBak = _gameRender->getScreenBak();
 #endif
@@ -125,7 +126,7 @@ int PALEditor::runLoop()
     gpGlobals->fInMainGame = TRUE;
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    gpGlobals->wNumScene = 1;
+    gpGlobals->wNumScene = 15;
 #ifdef USE_GAME_RENDERER
     _gameRender->setPalette(0, true);
 #else
@@ -182,14 +183,14 @@ int PALEditor::runLoop()
         ImGui::NewFrame();
 
         // render editor windows
-        _editorWindow->render();
+        _mainWindow->render();
 
         // Rendering
         ImGui::Render();
         ImGuiIO& io = ImGui::GetIO();
-        SDL_RenderSetScale(_editorWindow->getRender(), io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-        SDL_SetRenderDrawColor(_editorWindow->getRender(), (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
-        // SDL_RenderClear(_renderer);
+        SDL_RenderSetScale(_mainWindow->getRenderer(), io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+        SDL_SetRenderDrawColor(_mainWindow->getRenderer(), (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
+        // SDL_RenderClear(_gameRender->getRenderer());
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
         _gameRender->present();
     }

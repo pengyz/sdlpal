@@ -8,6 +8,10 @@
 
 namespace engine {
 
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+#define SDL_SoftStretch SDL_UpperBlit
+#endif
+
 GameRenderer::GameRenderer(SDL_Renderer* render)
     : _renderer(render)
 {
@@ -31,9 +35,6 @@ bool GameRenderer::init(SDL_Window* window, int width, int height)
     // create render backend
     _renderBackend = new render::SDL2_Backend(_renderer, _screenReal, true);
     _renderBackend->Init();
-
-    assert(_renderer && "create renderer failed !");
-
     _renderBackend->Setup();
 
     int render_w, render_h;
@@ -41,8 +42,8 @@ bool GameRenderer::init(SDL_Window* window, int width, int height)
     //  if (!gConfig.fEnableGLSL)
     //      SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, gConfig.pszScaleQuality);
     _texture = _renderBackend->CreateTexture(render_w, render_h);
-    //  if (gConfig.fEnableGLSL)
-    //      SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+    //   if (!gConfig.fEnableGLSL)
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, nullptr);
 
     // Create the screen buffer and the backup screen buffer.
     //

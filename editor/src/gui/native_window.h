@@ -59,7 +59,7 @@ public:
 
     SDL_Window* window() { return _window; }
 
-    SDL_Renderer* getRender() const { return _renderer; }
+    SDL_Renderer* getRenderer() const { return _renderer; }
 
     /**
      * @brief 颜色清屏
