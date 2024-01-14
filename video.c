@@ -188,8 +188,10 @@ VIDEO_Startup(
 		SDL_SetWindowIcon(gpWindow, surf);
 	}
 # endif
-
-   gpRenderer = SDL_CreateRenderer(gpWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+   if (gpRenderer == NULL)
+   {
+      gpRenderer = SDL_CreateRenderer(gpWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+   }
 
    gRenderBackend.Setup();
 
@@ -206,10 +208,16 @@ VIDEO_Startup(
    //
    // Create the screen buffer and the backup screen buffer.
    //
-   gpScreen = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
-   gpScreenBak = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
-   gpScreenReal = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 32,
+   if (!gpScreen) {
+      gpScreen = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
+   }
+   if (!gpScreenBak) {
+      gpScreenBak = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
+   }
+   if (!gpScreenReal) {
+      gpScreenReal = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 32,
                                        0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+   }
 
    //
    // Create texture for screen.
@@ -418,7 +426,7 @@ VIDEO_RenderCopy(
 	uint8_t *src = (uint8_t *)gpScreenReal->pixels;
 	int left_pitch = gTextureRect.x << 2;
 	int right_pitch = texture_pitch - ((gTextureRect.x + gTextureRect.w) << 2);
-	for (int y = 0; y < gTextureRect.h; y++, src += gpScreenReal->pitch)
+ 	for (int y = 0; y < gTextureRect.h; y++, src += gpScreenReal->pitch)
 	{
 		memset(pixels, 0, left_pitch); pixels += left_pitch;
 		memcpy(pixels, src, 320 << 2); pixels += 320 << 2;
@@ -433,7 +441,7 @@ VIDEO_RenderCopy(
 	{
 		SDL_RenderCopy(gpRenderer, gpTouchOverlay, NULL, &gOverlayRect);
 	}
-	SDL_RenderPresent(gpRenderer);
+	// SDL_RenderPresent(gpRenderer);
 }
 #endif
 

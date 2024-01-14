@@ -1439,7 +1439,7 @@ PAL_DialogWaitForKeyWithMaximumSeconds(
    g_TextLib.fUserSkip = FALSE;
 }
 
-static VOID
+VOID
 PAL_DialogWaitForKey(
    VOID
 )

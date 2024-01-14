@@ -177,7 +177,7 @@ PAL_CalcCoverTiles(
    }
 }
 
-static VOID
+VOID
 PAL_SceneDrawSprites(
    VOID
 )

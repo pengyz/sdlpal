@@ -1,6 +1,7 @@
 #pragma once
+#include "engine/game_renderer.h"
+#include "gui/native_window.h"
 #include <SDL.h>
-
 
 class PALEditor {
 public:
@@ -10,21 +11,21 @@ public:
 
     /**
      * @brief run editor loop
-     * 
-     * @return int 
+     *
+     * @return int
      */
     int runLoop();
 
     /**
      * @brief deinit editor
-     * 
+     *
      */
     void deinit();
 
 private:
-    bool initImGui();
-    bool initGame();
+    bool initGameEngine();
 
 private:
-    SDL_Renderer* _renderer = nullptr; // 渲染器
+    editor::NativeWindow* _editorWindow = nullptr;
+    engine::GameRenderer* _gameRender = nullptr; // 游戏渲染器
 };

@@ -1,4 +1,4 @@
-#include "script.h"
+#include "pal_script.h"
 #include "global.h"
 #include "palcfg.h"
 #include "text.h"
@@ -118,50 +118,56 @@ char* formatParam(LPSCRIPTENTRY pScript, ScriptParserItem* item)
     return args_buf;
 }
 
+void printScript(WORD wScriptEntry, LPSCRIPTENTRY pScript)
+{
+    ScriptParserItem* item = &g_parse_table[pScript->wOperation == 0xFFFF ? 0xA8 : pScript->wOperation];
+    if (!item || !item->opCode) {
+        printf("%.4x: %.4x %.4x %.4x %.4x ====\n", wScriptEntry,
+            pScript->wOperation, pScript->rgwOperand[0],
+            pScript->rgwOperand[1], pScript->rgwOperand[2]);
+        return;
+    }
+    char* bufs = formatParam(pScript, item);
+    printf("%.4X: (0x%.4X)", wScriptEntry, pScript->wOperation);
+    if (!strcmp(&bufs[0 * 128], "nil")) {
+        printf("%s()", item->opCode);
+    } else if (!strcmp(&bufs[1 * 128], "nil")) {
+        printf("%s(%s)", item->opCode, &bufs[0 * 128]);
+    } else if (!strcmp(&bufs[2 * 128], "nil")) {
+        printf("%s(%s, %s)", item->opCode, &bufs[0 * 128], &bufs[1 * 128]);
+    } else {
+        printf("%s(%s, %s, %s)", item->opCode, &bufs[0 * 128], &bufs[1 * 128], &bufs[2 * 128]);
+    }
+    if (pScript->wOperation == 0xFFFF) {
+        // handle text logic
+        std::wstring wmsg;
+        if (gConfig.pszMsgFile) {
+            int msgSpan = MESSAGE_GetSpan(&wScriptEntry);
+            int idx = 0, iMsg;
+            while ((iMsg = PAL_GetMsgNum(pScript->rgwOperand[0], msgSpan, idx++)) >= 0) {
+                if (iMsg == 0) {
+                    //
+                    // Restore the screen
+                    //
+                } else {
+                    wmsg.append(PAL_GetMsg(iMsg)).append(L"\n");
+                }
+            }
+        } else {
+            wmsg = PAL_GetMsg(pScript->rgwOperand[0]);
+        }
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
+        std::string msg = utf8_conv.to_bytes(wmsg);
+        printf(" text: %s", msg.c_str());
+    }
+    printf("\n");
+}
+
 void PalScriptParser::parse()
 {
     auto g = &gpGlobals->g;
     for (WORD wScriptEntry = 0; wScriptEntry < g->nScriptEntry; wScriptEntry++) {
         LPSCRIPTENTRY pScript = &g->lprgScriptEntry[wScriptEntry];
-        ScriptParserItem* item = &g_parse_table[pScript->wOperation == 0xFFFF ? 0xA8 : pScript->wOperation];
-        if (!item || !item->opCode) {
-            printf("%.4x: %.4x %.4x %.4x %.4x ====\n", wScriptEntry,
-                pScript->wOperation, pScript->rgwOperand[0],
-                pScript->rgwOperand[1], pScript->rgwOperand[2]);
-            continue;
-        }
-        char* bufs = formatParam(pScript, item);
-        if (!strcmp(&bufs[0 * 128], "nil")) {
-            printf("%.4x: %s()", wScriptEntry, item->opCode);
-        } else if (!strcmp(&bufs[1 * 128], "nil")) {
-            printf("%.4x: %s(%s)", wScriptEntry, item->opCode, &bufs[0 * 128]);
-        } else if (!strcmp(&bufs[2 * 128], "nil")) {
-            printf("%.4x: %s(%s, %s)", wScriptEntry, item->opCode, &bufs[0 * 128], &bufs[1 * 128]);
-        } else {
-            printf("%.4x: %s(%s, %s, %s)", wScriptEntry, item->opCode, &bufs[0 * 128], &bufs[1 * 128], &bufs[2 * 128]);
-        }
-        if (pScript->wOperation == 0xFFFF) {
-            // handle text logic
-            std::wstring wmsg;
-            if (gConfig.pszMsgFile) {
-                int msgSpan = MESSAGE_GetSpan(&wScriptEntry);
-                int idx = 0, iMsg;
-                while ((iMsg = PAL_GetMsgNum(pScript->rgwOperand[0], msgSpan, idx++)) >= 0) {
-                    if (iMsg == 0) {
-                        //
-                        // Restore the screen
-                        //
-                    } else {
-                        wmsg.append(PAL_GetMsg(iMsg)).append(L"\n");
-                    }
-                }
-            } else {
-                wmsg = PAL_GetMsg(pScript->rgwOperand[0]);
-            }
-            std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
-            std::string msg = utf8_conv.to_bytes(wmsg);
-            printf(" text: %s", msg.c_str());
-        }
-        printf("\n");
+        printScript(wScriptEntry, pScript);
     }
 }

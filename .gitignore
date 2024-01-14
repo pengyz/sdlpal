@@ -285,3 +285,5 @@ emscripten/*.cpp
 
 # clangd cache dir
 .cache/
+# imgui config file
+gui.ini

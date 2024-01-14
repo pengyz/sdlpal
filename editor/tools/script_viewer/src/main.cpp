@@ -3,7 +3,7 @@
 #include "pal_loader.h"
 #include "palcommon.h"
 #include "play.h"
-#include "script.h"
+#include "engine/pal_script.h"
 #include "util.h"
 #include <ios>
 #include <iostream>

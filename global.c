@@ -308,7 +308,7 @@ PAL_ReadGlobalGameData(
    DO_BYTESWAP(p->rgLevelUpExp, sizeof(p->rgLevelUpExp));
 }
 
-static VOID
+VOID
 PAL_InitGlobalGameData(
    VOID
 )
@@ -374,7 +374,7 @@ PAL_InitGlobalGameData(
 #undef PAL_DOALLOCATE
 }
 
-static VOID
+VOID
 PAL_LoadDefaultGame(
    VOID
 )
