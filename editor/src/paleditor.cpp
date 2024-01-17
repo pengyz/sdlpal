@@ -1,31 +1,19 @@
 #include "paleditor.h"
-#include "3rd/SDL/include/SDL_error.h"
-#include "3rd/SDL/include/SDL_events.h"
-#include "3rd/SDL/include/SDL_surface.h"
+#include "3rd/SDL/include/SDL.h"
 #include "3rd/SDL/include/SDL_video.h"
 #include "audio.h"
-#include "aviplay.h"
 #include "common.h"
+#include "engine/pal_global.h"
+#include "engine/pal_resources.h"
 #include "engine/pal_script.h"
-#include "font.h"
 #include "game.h"
-#include "global.h"
+#include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
-#include "input.h"
 #include "palcfg.h"
 #include "palcommon.h"
-#include "palette.h"
-#include "play.h"
-#include "res.h"
-#include "scene.h"
 #include "script.h"
-#include "text.h"
-#include "uigame.h"
 #include "util.h"
-#include "video.h"
-#include <cstdio>
 #include <imgui.h>
-#include <imgui_impl_sdl2.h>
 #include <iostream>
 
 extern "C" {
@@ -33,19 +21,25 @@ extern VOID PAL_InitGlobalGameData(VOID);
 extern VOID PAL_LoadDefaultGame(VOID);
 VOID PAL_SceneDrawSprites(VOID);
 VOID PAL_DialogWaitForKey(VOID);
-
-#ifndef USE_GAME_RENDERER
-extern SDL_Surface* gpScreenReal;
-extern SDL_Surface* gpScreenBak;
-extern SDL_Window* gpWindow;
-extern SDL_Renderer* gpRenderer;
-#endif
 }
 
+namespace editor {
+
+PALEditor::PALEditor()
+    : _globals(new engine::PalGlobals())
+    , _resources(new engine::PalResources(_globals))
+{
+}
 
 PALEditor::~PALEditor()
 {
     deinit();
+    if (_globals)
+        delete _globals;
+    _globals = nullptr;
+    if (_resources)
+        delete _resources;
+    _resources = nullptr;
 }
 
 bool PALEditor::init()
@@ -83,31 +77,25 @@ bool PALEditor::init()
     },
         LOGLEVEL_DEBUG);
 
-    _mainWindow = new editor::NativeWindow(1024, 768, "pal editor");
+    _mainWindow = new editor::NativeWindow(_globals, _resources, 1024, 768, "pal editor");
     if (!_mainWindow->init()) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "initalize editorWindow failed !");
         return false;
     }
     // initialize gameRender
-    _gameRender = new engine::GameRenderer(_mainWindow->getRenderer());
-    if (!_gameRender->init(_mainWindow->window(), GAME_WIDTH, GAME_HEIGHT)) {
+    _renderer = new engine::PalRenderer(_mainWindow->getRenderer());
+    if (!_renderer->init(_mainWindow->window(), GAME_WIDTH, GAME_HEIGHT)) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "init gameRenderer failed !");
         return false;
     }
 
-#ifndef USE_GAME_RENDERER
-    gpScreenReal = _gameRender->getScreenReal();
-    gpScreen = _gameRender->getScreen();
-    gpWindow = _mainWindow->window();
-    gpRenderer = _gameRender->getRenderer();
-    gpScreenBak = _gameRender->getScreenBak();
-#endif
+    _input = new engine::PalInput(_renderer);
 
     if (!initGameEngine()) {
         TerminateOnError("Could not initialize Game !");
     }
     // only load scene and playerSprite
-    PAL_SetLoadFlags(kLoadScene | kLoadPlayerSprite);
+    _resources->setLoadFlags(engine::kLoadScene | engine::kLoadPlayerSprite);
 
     return true;
 }
@@ -122,60 +110,45 @@ int PALEditor::runLoop()
 {
     DWORD dwTime = SDL_GetTicks();
 
-    gpGlobals->bCurrentSaveSlot = 0;
-    gpGlobals->fInMainGame = TRUE;
+    _globals->getCurrentSaveSlot() = 0;
+    _globals->getInMainGame() = TRUE;
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    gpGlobals->wNumScene = 15;
-#ifdef USE_GAME_RENDERER
-    _gameRender->setPalette(0, true);
-#else
-    PAL_SetPalette(0, TRUE);
-#endif
+    _globals->getNumScene() = 15;
+    _renderer->setPalette(0, true);
     while (TRUE) {
-        PAL_LoadResources();
-        PAL_ClearKeyState();
+        _resources->loadResources();
+        _input->clearKeyState();
 
         // process sdl
         while (!SDL_TICKS_PASSED(SDL_GetTicks(), (dwTime))) {
-            PAL_ProcessEvent();
+            _input->processEvent();
             SDL_Delay(1);
         }
         dwTime = SDL_GetTicks() + FRAME_TIME;
-#if 0
-        PAL_StartFrame();
-#else
         static SDL_Rect rect = { 0, 0, 320, 200 };
-        gpGlobals->viewport = PAL_XY(592, 690);
-        rect.x = PAL_X(gpGlobals->viewport);
-        rect.y = PAL_Y(gpGlobals->viewport);
+        _globals->getViewport() = PAL_XY(592, 690);
+        rect.x = PAL_X(_globals->getViewport());
+        rect.y = PAL_Y(_globals->getViewport());
         // do not enter scene, just load this point
-        gpGlobals->fEnteringScene = FALSE;
-        PAL_ClearDialog(TRUE);
-#ifdef USE_GAME_RENDERER
-        SDL_Surface* pScreen = _gameRender->getScreen();
-#else
-        SDL_Surface* pScreen = gpScreen;
-#endif
+        _globals->getEnteringScene() = FALSE;
+        // PAL_ClearDialog(TRUE);
+        SDL_Surface* pScreen = _renderer->getScreen();
         // PAL_MakeScene();
-        PAL_MapBlitToSurface(PAL_GetCurrentMap(), pScreen, &rect, 0);
-        PAL_MapBlitToSurface(PAL_GetCurrentMap(), pScreen, &rect, 1);
+        PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 0);
+        PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 1);
         // PAL_SceneDrawSprites();
         // PAL_ShowDialogText(PAL_GetMsg(1885));
         // PAL_ClearDialog(TRUE);
         // PAL_StartDialog(kDialogLower, (BYTE)0, 39, false);
-#ifdef USE_GAME_RENDERER
-        _gameRender->updateScreen(nullptr);
-#else
-        VIDEO_UpdateScreen(NULL);
-#endif
+        _renderer->updateScreen(nullptr);
+        SDL_SaveBMP(pScreen, "./screen.bmp");
 
-        if (gpGlobals->fEnteringScene) {
-            gpGlobals->fEnteringScene = FALSE;
-            WORD i = gpGlobals->wNumScene - 1;
-            gpGlobals->g.rgScene[i].wScriptOnEnter = PAL_RunTriggerScript(gpGlobals->g.rgScene[i].wScriptOnEnter, 0xFFFF);
+        if (_globals->getEnteringScene()) {
+            _globals->getEnteringScene() = FALSE;
+            WORD i = _globals->getNumScene() - 1;
+            _globals->getGameData().rgScene[i].wScriptOnEnter = PAL_RunTriggerScript(_globals->getGameData().rgScene[i].wScriptOnEnter, 0xFFFF);
         }
-#endif
 
         // draw Imgui
         ImGui_ImplSDLRenderer2_NewFrame();
@@ -192,7 +165,7 @@ int PALEditor::runLoop()
         SDL_SetRenderDrawColor(_mainWindow->getRenderer(), (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
         // SDL_RenderClear(_gameRender->getRenderer());
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-        _gameRender->present();
+        _renderer->present();
     }
     return 0;
 }
@@ -203,56 +176,39 @@ bool PALEditor::initGameEngine()
     //
     // Initialize subsystems.
     //
-    e = PAL_InitGlobals();
+    e = _globals->init();
     if (e != 0) {
         TerminateOnError("Could not initialize global data: %d.\n", e);
     }
-#ifndef USE_GAME_RENDERER
-    e = VIDEO_Startup();
-    if (e != 0) {
-        TerminateOnError("Could not initialize Video: %d.\n", e);
-    }
-#endif
 
-    VIDEO_SetWindowTitle("Loading...");
-
+#if 0
+    // TODO: rewrite ui logics
     e = PAL_InitUI();
     if (e != 0) {
         TerminateOnError("Could not initialize UI subsystem: %d.\n", e);
     }
+#endif
 
-    e = PAL_InitText();
-    if (e != 0) {
-        TerminateOnError("Could not initialize text subsystem: %d.\n", e);
-    }
+    // e = PAL_InitText();
+    // if (e != 0) {
+    //     TerminateOnError("Could not initialize text subsystem: %d.\n", e);
+    // }
 
-    e = PAL_InitFont(&gConfig);
-    if (e != 0) {
-        TerminateOnError("Could not load fonts: %d.\n", e);
-    }
+    // e = PAL_InitFont(&gConfig);
+    // if (e != 0) {
+    //     TerminateOnError("Could not load fonts: %d.\n", e);
+    // }
 
-    PAL_InitInput();
-    PAL_InitResources();
+    _input->init();
+    _resources->init();
     AUDIO_OpenDevice();
-    PAL_AVIInit();
+    // PAL_AVIInit();
 
-    VIDEO_SetWindowTitle(UTIL_va(UTIL_GlobalBuffer(0), PAL_GLOBAL_BUFFER_SIZE,
-        "PalEditor %s%s%s%s",
-        gConfig.fIsWIN95 ? "Win95" : "DOS",
-#if defined(_DEBUG) || defined(DEBUG)
-        " (Debug) ",
-#else
-        "",
-#endif
-#if defined(PAL_HAS_GIT_REVISION) && defined(PAL_GIT_REVISION)
-        " [" PAL_GIT_REVISION "] "
-#else
-        ""
-#endif
-        ,
-        (gConfig.fEnableGLSL && gConfig.pszShader ? gConfig.pszShader : "")));
+    SDL_SetWindowTitle(_mainWindow->window(), "pal editor");
     // init global game data and load default game
-    PAL_InitGlobalGameData();
-    PAL_LoadDefaultGame();
+    _globals->initGlobalGameData();
+    _globals->loadDefaultGame();
     return true;
+}
+
 }

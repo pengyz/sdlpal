@@ -1,6 +1,6 @@
 #pragma once
 #include "common.h"
-#include "engine/game_renderer.h"
+#include "engine/pal_renderer.h"
 #include "util.h"
 #include "window.h"
 #include <cassert>
@@ -12,7 +12,9 @@ struct SDL_Renderer;
 union SDL_Event;
 
 namespace engine {
-class GameRenderer;
+class PalRenderer;
+class PalGlobals;
+class PalResources;
 }
 
 enum class SubPanels {
@@ -36,7 +38,7 @@ class NativeWindow : public Window {
     friend class Game;
 
 public:
-    NativeWindow(int width, int height, const std::string& title);
+    NativeWindow(engine::PalGlobals* globals, engine::PalResources* resources, int width, int height, const std::string& title);
     ~NativeWindow() override;
 
     bool init() override;
@@ -86,5 +88,7 @@ protected:
     std::string _title; // 标题
     EditorModel _model; // ui model
     std::map<SubPanels, editor::Window*> _imgui_panels; // imgui panels
+    engine::PalGlobals* _globals;
+    engine::PalResources* _resources;
 };
 } // namespace editor

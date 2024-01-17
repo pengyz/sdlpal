@@ -1,7 +1,7 @@
 #include "native_window.h"
-#include "3rd/SDL/include/SDL_error.h"
-#include "3rd/SDL/include/SDL_render.h"
 #include "SDL.h"
+#include "SDL_error.h"
+#include "SDL_render.h"
 #include "common.h"
 #include "game_panel.h"
 #include "imgui.h"
@@ -20,8 +20,10 @@ extern void (*g_outside_event_handler)(const SDL_Event*);
 
 namespace editor {
 
-NativeWindow::NativeWindow(int width, int height, const std::string& title)
+NativeWindow::NativeWindow(engine::PalGlobals* globals, engine::PalResources* resources, int width, int height, const std::string& title)
     : Window(width, height, title)
+    , _globals(globals)
+    , _resources(resources)
 {
 }
 
@@ -46,7 +48,7 @@ bool NativeWindow::init()
     }
 
     //创建窗口
-    createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes");
+    createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _globals, _resources);
     createImGuiPanel<GamePanel>(SubPanels::game, nullptr, 320, 200, "game");
     return true;
 }
@@ -148,11 +150,6 @@ bool NativeWindow::_initImGui(SDL_Renderer* renderer)
     // io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
     // ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL,
     // io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
-
-    // setup process event
-    g_outside_event_handler = [](const SDL_Event* evt) -> void {
-        ImGui_ImplSDL2_ProcessEvent(evt);
-    };
 
     return true;
 }

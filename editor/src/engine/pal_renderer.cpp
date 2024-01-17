@@ -1,4 +1,4 @@
-#include "game_renderer.h"
+#include "pal_renderer.h"
 #include "3rd/SDL/include/SDL_video.h"
 #include "palette.h"
 #include "render/sdl2_backend.h"
@@ -12,12 +12,12 @@ namespace engine {
 #define SDL_SoftStretch SDL_UpperBlit
 #endif
 
-GameRenderer::GameRenderer(SDL_Renderer* render)
+PalRenderer::PalRenderer(SDL_Renderer* render)
     : _renderer(render)
 {
 }
 
-GameRenderer::~GameRenderer()
+PalRenderer::~PalRenderer()
 {
     if (_renderBackend) {
         delete _renderBackend;
@@ -25,7 +25,7 @@ GameRenderer::~GameRenderer()
     }
 }
 
-bool GameRenderer::init(SDL_Window* window, int width, int height)
+bool PalRenderer::init(SDL_Window* window, int width, int height)
 {
     // create surfaces
     _screen = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
@@ -57,7 +57,7 @@ bool GameRenderer::init(SDL_Window* window, int width, int height)
     return true;
 }
 
-void GameRenderer::deinit()
+void PalRenderer::deinit()
 {
     if (_screen != NULL) {
         SDL_FreeSurface(_screen);
@@ -98,9 +98,9 @@ void GameRenderer::deinit()
     _screenReal = NULL;
 }
 
-SDL_Texture* GameRenderer::texture() { return _renderBackend->texture(); }
+SDL_Texture* PalRenderer::texture() { return _renderBackend->texture(); }
 
-void GameRenderer::fillRect(SDL_Colour color, const SDL_Rect& rect)
+void PalRenderer::fillRect(SDL_Colour color, const SDL_Rect& rect)
 {
     SDL_SetRenderTarget(_renderBackend->renderer(), _renderBackend->texture());
     SDL_SetRenderDrawColor(_renderBackend->renderer(), color.r, color.g, color.b, color.a);
@@ -108,12 +108,12 @@ void GameRenderer::fillRect(SDL_Colour color, const SDL_Rect& rect)
     SDL_SetRenderTarget(_renderBackend->renderer(), nullptr);
 }
 
-SDL_Color* GameRenderer::getPalette(int32_t iPaletteNum, bool fNight)
+SDL_Color* PalRenderer::getPalette(int32_t iPaletteNum, bool fNight)
 {
     return PAL_GetPalette(iPaletteNum, fNight);
 }
 
-void GameRenderer::setPalette(SDL_Color rgPalette[256])
+void PalRenderer::setPalette(SDL_Color rgPalette[256])
 {
 #if SDL_VERSION_ATLEAST(2, 0, 0)
     SDL_Rect rect;
@@ -154,7 +154,7 @@ void GameRenderer::setPalette(SDL_Color rgPalette[256])
 #endif
 }
 
-void GameRenderer::setPalette(int32_t iPaletteNum, bool fNight)
+void PalRenderer::setPalette(int32_t iPaletteNum, bool fNight)
 {
     SDL_Color* p = PAL_GetPalette(iPaletteNum, fNight);
 
@@ -163,7 +163,7 @@ void GameRenderer::setPalette(int32_t iPaletteNum, bool fNight)
     }
 }
 
-void GameRenderer::updateScreen(const SDL_Rect* lpRect)
+void PalRenderer::updateScreen(const SDL_Rect* lpRect)
 {
     SDL_Rect srcrect, dstrect;
     short offset = 240 - 200;
@@ -171,7 +171,7 @@ void GameRenderer::updateScreen(const SDL_Rect* lpRect)
     short screenRealY = 0;
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-    if (g_bRenderPaused) {
+    if (_bRenderPaused) {
         return;
     }
 #endif
@@ -184,7 +184,7 @@ void GameRenderer::updateScreen(const SDL_Rect* lpRect)
             return;
     }
 
-    if (!bScaleScreen) {
+    if (!_bScaleScreen) {
         screenRealHeight -= offset;
         screenRealY = offset / 2;
     }
@@ -260,15 +260,74 @@ void GameRenderer::updateScreen(const SDL_Rect* lpRect)
     }
 }
 
-void GameRenderer::present()
+void PalRenderer::present()
 {
     SDL_RenderPresent(_renderer);
 }
 
-void GameRenderer::erase(int r, int g, int b, int a)
+void PalRenderer::erase(int r, int g, int b, int a)
 {
     SDL_SetRenderDrawColor(_renderer, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a);
     SDL_RenderClear(_renderer);
+}
+
+VOID PalRenderer::resize(int w, int h)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+    SDL_Rect rect;
+
+    if (_texture) {
+        SDL_DestroyTexture(_texture);
+    }
+
+    _texture = _renderBackend->CreateTexture(w, h);
+
+    if (_texture == NULL) {
+        TerminateOnError("Re-creating texture failed on window resize!\n");
+    }
+
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 320;
+    rect.h = 200;
+
+    updateScreen(&rect);
+#else
+    DWORD flags;
+    PAL_LARGE SDL_Color palette[256];
+    int i, bpp;
+
+    //
+    // Get the original palette.
+    //
+    if (_screenReal->format->palette != NULL) {
+        for (i = 0; i < _screenReal->format->palette->ncolors; i++) {
+            palette[i] = _screenReal->format->palette->colors[i];
+        }
+    } else
+        i = 0;
+
+    //
+    // Create the screen surface.
+    //
+    flags = _screenReal->flags;
+    bpp = _screenReal->format->BitsPerPixel;
+
+    SDL_FreeSurface(_screenReal);
+    _screenReal = SDL_SetVideoMode(w, h, bpp, flags);
+
+    if (_screenReal == NULL) {
+        //
+        // Fall back to software windowed mode in default size.
+        //
+        _screenReal = SDL_SetVideoMode(PAL_DEFAULT_WINDOW_WIDTH, PAL_DEFAULT_WINDOW_HEIGHT, bpp, SDL_SWSURFACE);
+    }
+
+    SDL_SetPalette(_screenReal, SDL_PHYSPAL | SDL_LOGPAL, palette, 0, i);
+    VIDEO_UpdateScreen(NULL);
+
+    _palette = _screenReal->format->palette;
+#endif
 }
 
 } // namespace engine

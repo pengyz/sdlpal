@@ -19,10 +19,10 @@ using PaletteColors = std::array<SDL_Color, 256>;
  * @brief 渲染器
  *
  */
-class GameRenderer {
+class PalRenderer {
 public:
-    GameRenderer(SDL_Renderer* render);
-    ~GameRenderer();
+    PalRenderer(SDL_Renderer* render);
+    ~PalRenderer();
     /**
      * @brief 初始化
      *
@@ -81,10 +81,10 @@ public:
     void erase(int r, int g, int b, int a);
 
     SDL_Surface* getScreen() const { return _screen; }
-#ifndef USE_GAME_RENDERER
-    SDL_Surface* getScreenReal() const { return _screenReal; }
-    SDL_Surface* getScreenBak() const { return _screenBak; }
-#endif
+    
+    void resize(int w, int h);
+
+    void setPaused(bool paused) { _bRenderPaused = paused; }
 
 private:
     SDL_Renderer* _renderer = nullptr; // gpRenderer
@@ -94,7 +94,8 @@ private:
     SDL_Surface* _screenBak = NULL; // gpScreenBak
     SDL_Surface* _screenReal = nullptr; // gpScreenReal: The real screen surface
     SDL_Texture* _texture = nullptr; // gpTexture
-    bool bScaleScreen = true;
+    bool _bScaleScreen = true; // g_bScaleScreen
+    bool _bRenderPaused = false; // g_bRenderPaused
     // Shake times and level
     unsigned short _wShakeTime = 0; // g_wShakeTime
     unsigned short _wShakeLevel = 0; // g_wShakeLevel

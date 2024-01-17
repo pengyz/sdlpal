@@ -1,18 +1,19 @@
 #include "scene_panel.h"
+#include "engine/pal_global.h"
+#include "engine/pal_resources.h"
 #include "global.h"
 #include "imgui.h"
-#include "res.h"
 #include "util.h"
 #include <SDL.h>
 #include <cfloat>
 #include <string>
 
-extern GLOBALVARS* const gpGlobals;
-
 namespace editor {
 
-ScenePanel::ScenePanel(int width, int height, const std::string& title)
+ScenePanel::ScenePanel(int width, int height, const std::string& title, engine::PalGlobals* globals, engine::PalResources* resources)
     : Window(width, height, title)
+    , _globals(globals)
+    , _resources(resources)
 {
 }
 
@@ -24,8 +25,8 @@ void ScenePanel::render()
     if (ImGui::Begin(_title.c_str(), nullptr)) {
         ImGui::LabelText("##title", "%s", "场景列表");
         if (ImGui::BeginListBox("##scenes", { -FLT_MIN, -FLT_MIN })) {
-            for (int n = 0; n < IM_ARRAYSIZE(gpGlobals->g.rgScene); n++) {
-                LPSCENE pScene = &gpGlobals->g.rgScene[n];
+            for (int n = 0; n < IM_ARRAYSIZE(_globals->getGameData().rgScene); n++) {
+                engine::LPSCENE pScene = &_globals->getGameData().rgScene[n];
                 if (!pScene->wMapNum)
                     break;
                 const bool is_selected = (model.item_current_idx == n);
@@ -35,9 +36,9 @@ void ScenePanel::render()
                     if (n != model.item_current_idx) {
                         model.item_current_idx = n;
                         // load scene
-                        PAL_SetLoadFlags(kLoadScene | kLoadPlayerSprite);
-                        gpGlobals->fEnteringScene = TRUE;
-                        gpGlobals->wNumScene = model.item_current_idx + 1;
+                        _resources->setLoadFlags(engine::kLoadScene | engine::kLoadPlayerSprite);
+                        _globals->getEnteringScene() = TRUE;
+                        _globals->getNumScene() = model.item_current_idx + 1;
                     }
                 }
 

@@ -2,6 +2,11 @@
 
 #include "window.h"
 
+namespace engine {
+  class PalGlobals;
+  class PalResources;
+}
+
 namespace editor {
 
 struct ScenePanelModel {
@@ -10,7 +15,7 @@ struct ScenePanelModel {
 
 class ScenePanel : public Window {
 public:
-    ScenePanel(int width, int height, const std::string& title);
+    ScenePanel(int width, int height, const std::string& title, engine::PalGlobals* globals, engine::PalResources* resources);
     ~ScenePanel();
     /**
      * @brief 渲染逻辑
@@ -21,6 +26,8 @@ public:
     virtual bool init() override;
 
 private:
-  ScenePanelModel model;
+    ScenePanelModel model;
+    engine::PalGlobals* _globals = nullptr;
+    engine::PalResources* _resources = nullptr;
 };
 } // namespace editor

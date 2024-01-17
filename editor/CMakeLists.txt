@@ -217,20 +217,11 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
     src/*.h
 )
 
-# if use self game renderer
-option(USE_GAME_RENDERER "use self-implemented game renderer" ON)
-
 
 # editor executable
 add_executable(${PROJECT_NAME}
     ${SRC_FILES}
 )
-
-if (USE_GAME_RENDERER)
-add_compile_definitions(${PROJECT_NAME}
-    USE_GAME_RENDERER
-)
-endif(USE_GAME_RENDERER)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/src/

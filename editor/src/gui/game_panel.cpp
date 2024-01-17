@@ -4,7 +4,7 @@
 
 namespace editor {
 
-GamePanel::GamePanel(engine::GameRenderer* renderer, int width, int height,
+GamePanel::GamePanel(engine::PalRenderer* renderer, int width, int height,
                      const std::string& title)
     : Window(width, height, title), _renderer(renderer) {}
 

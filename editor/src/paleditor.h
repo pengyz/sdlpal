@@ -1,11 +1,19 @@
 #pragma once
-#include "engine/game_renderer.h"
+#include "engine/pal_input.h"
+#include "engine/pal_renderer.h"
 #include "gui/native_window.h"
 #include <SDL.h>
 
+namespace engine {
+class PalGlobals;
+class PalResources;
+}
+
+namespace editor {
+
 class PALEditor {
 public:
-    PALEditor() = default;
+    PALEditor();
     ~PALEditor();
     bool init();
 
@@ -26,6 +34,10 @@ private:
     bool initGameEngine();
 
 private:
-    editor::NativeWindow* _mainWindow = nullptr;
-    engine::GameRenderer* _gameRender = nullptr; // 游戏渲染器
+    editor::NativeWindow* _mainWindow = nullptr; // main window
+    engine::PalRenderer* _renderer = nullptr; // 游戏渲染器
+    engine::PalInput* _input = nullptr; // input handler
+    engine::PalGlobals* _globals = nullptr; // global variables
+    engine::PalResources* _resources = nullptr; // game resources
 };
+}
