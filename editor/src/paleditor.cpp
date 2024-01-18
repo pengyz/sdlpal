@@ -82,14 +82,9 @@ bool PALEditor::init()
         UTIL_LogOutput(LOGLEVEL_ERROR, "initalize editorWindow failed !");
         return false;
     }
-    // initialize gameRender
-    _renderer = new engine::PalRenderer(_mainWindow->getRenderer());
-    if (!_renderer->init(_mainWindow->window(), GAME_WIDTH, GAME_HEIGHT)) {
-        UTIL_LogOutput(LOGLEVEL_ERROR, "init gameRenderer failed !");
-        return false;
-    }
+    // save renderer
 
-    _input = new engine::PalInput(_renderer);
+    _input = new engine::PalInput(_mainWindow->getPalRenderer());
 
     if (!initGameEngine()) {
         TerminateOnError("Could not initialize Game !");
@@ -115,7 +110,7 @@ int PALEditor::runLoop()
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     _globals->getNumScene() = 15;
-    _renderer->setPalette(0, true);
+    _mainWindow->getPalRenderer()->setPalette(0, true);
     while (TRUE) {
         _resources->loadResources();
         _input->clearKeyState();
@@ -133,7 +128,7 @@ int PALEditor::runLoop()
         // do not enter scene, just load this point
         _globals->getEnteringScene() = FALSE;
         // PAL_ClearDialog(TRUE);
-        SDL_Surface* pScreen = _renderer->getScreen();
+        SDL_Surface* pScreen = _mainWindow->getPalRenderer()->getScreen();
         // PAL_MakeScene();
         PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 0);
         PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 1);
@@ -141,7 +136,7 @@ int PALEditor::runLoop()
         // PAL_ShowDialogText(PAL_GetMsg(1885));
         // PAL_ClearDialog(TRUE);
         // PAL_StartDialog(kDialogLower, (BYTE)0, 39, false);
-        _renderer->updateScreen(nullptr);
+        _mainWindow->getPalRenderer()->updateScreen(nullptr);
         SDL_SaveBMP(pScreen, "./screen.bmp");
 
         if (_globals->getEnteringScene()) {
@@ -165,7 +160,7 @@ int PALEditor::runLoop()
         SDL_SetRenderDrawColor(_mainWindow->getRenderer(), (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
         // SDL_RenderClear(_gameRender->getRenderer());
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-        _renderer->present();
+        _mainWindow->getPalRenderer()->present();
     }
     return 0;
 }

@@ -3,6 +3,7 @@
 #include "SDL_error.h"
 #include "SDL_render.h"
 #include "common.h"
+#include "engine/pal_renderer.h"
 #include "game_panel.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -24,6 +25,7 @@ NativeWindow::NativeWindow(engine::PalGlobals* globals, engine::PalResources* re
     : Window(width, height, title)
     , _globals(globals)
     , _resources(resources)
+    , _palRenderer(nullptr)
 {
 }
 
@@ -39,26 +41,32 @@ bool NativeWindow::init()
     }
     // gpRenderer = _renderer;
     SDL_AddEventWatch(&NativeWindow::resizingEventWatcher, this);
-    //创建逻辑texture
+    // 创建逻辑texture
     _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    // initialize gameRender
+    _palRenderer = new engine::PalRenderer(_renderer);
+    if (!_palRenderer->init(_window, GAME_WIDTH, GAME_HEIGHT)) {
+        UTIL_LogOutput(LOGLEVEL_ERROR, "init gameRenderer failed !");
+        return false;
+    }
     bOk = _initImGui(_renderer);
     if (!bOk) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "initImGui failed !");
         return false;
     }
 
-    //创建窗口
+    // 创建窗口
     createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _globals, _resources);
-    createImGuiPanel<GamePanel>(SubPanels::game, nullptr, 320, 200, "game");
+    createImGuiPanel<GamePanel>(SubPanels::game, GAME_WIDTH, GAME_HEIGHT, "game", _palRenderer);
     return true;
 }
 
 void NativeWindow::render()
 {
-    //主窗口菜单项
+    // 主窗口菜单项
     _paintMainMenuBar();
 
-    //创建dock space
+    // 创建dock space
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
     for (auto w : _imgui_panels) {

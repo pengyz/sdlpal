@@ -8,9 +8,9 @@ namespace engine {
 
 namespace editor {
 
-class GamePanel : public Window {
+class  GamePanel : public Window {
  public:
-  GamePanel(engine::PalRenderer* renderer, int width, int height, const std::string& title);
+  GamePanel(int width, int height, const std::string& title, engine::PalRenderer* renderer);
   ~GamePanel();
   /**
    * @brief 渲染逻辑

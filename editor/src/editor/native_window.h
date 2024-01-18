@@ -1,6 +1,5 @@
 #pragma once
 #include "common.h"
-#include "engine/pal_renderer.h"
 #include "util.h"
 #include "window.h"
 #include <cassert>
@@ -63,6 +62,8 @@ public:
 
     SDL_Renderer* getRenderer() const { return _renderer; }
 
+    engine::PalRenderer* getPalRenderer() {return _palRenderer; }
+
     /**
      * @brief 颜色清屏
      *
@@ -88,7 +89,8 @@ protected:
     std::string _title; // 标题
     EditorModel _model; // ui model
     std::map<SubPanels, editor::Window*> _imgui_panels; // imgui panels
-    engine::PalGlobals* _globals;
-    engine::PalResources* _resources;
+    engine::PalGlobals* _globals = nullptr;
+    engine::PalResources* _resources = nullptr;
+    engine::PalRenderer* _palRenderer = nullptr;
 };
 } // namespace editor

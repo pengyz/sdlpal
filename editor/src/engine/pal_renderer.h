@@ -81,10 +81,12 @@ public:
     void erase(int r, int g, int b, int a);
 
     SDL_Surface* getScreen() const { return _screen; }
-    
+
     void resize(int w, int h);
 
     void setPaused(bool paused) { _bRenderPaused = paused; }
+
+    SDL_Texture* getTexture() { return _texture; }
 
 private:
     SDL_Renderer* _renderer = nullptr; // gpRenderer
