@@ -1,14 +1,17 @@
 #include "game_panel.h"
+#include "engine/pal_input.h"
 #include "engine/pal_renderer.h"
 #include "imgui.h"
 #include <SDL.h>
+#include <iostream>
 
 namespace editor {
 
 GamePanel::GamePanel(int width, int height,
-    const std::string& title, engine::PalRenderer* renderer)
+    const std::string& title, engine::PalRenderer* renderer, engine::PalInput* input)
     : Window(width, height, title)
     , _renderer(renderer)
+    , _input(input)
 {
 }
 
@@ -20,8 +23,8 @@ void GamePanel::render()
     ImGui::SetNextWindowSize(ImVec2(_width, _height), ImGuiCond_FirstUseEver);
     // 创建背景窗口
     if (ImGui::Begin(_title.c_str(), nullptr)) {
-        int w = 0, h = 0;
-        SDL_QueryTexture(_renderer->getTexture(), nullptr, nullptr, &w, &h);
+        ImGui::Text("游戏视图");
+        _input->setFocus(ImGui::IsWindowFocused());
         ImGui::Image((ImTextureID)_renderer->getTexture(), { (float)w * 2.0f, (float)h * 2.0f });
     }
     ImGui::End();
@@ -29,9 +32,8 @@ void GamePanel::render()
 
 bool GamePanel::init()
 {
-    // for (int i = 0; i < 10; i++) {
-    //   _renderer->fillRect({Uint8(100 + 15 * i), Uint8(55 + 20 * i), Uint8(10 + 17 * i), 0}, {0, 0, 100 - 10 * i, 100 - 10 * i});
-    // }
+    // get texture size
+    SDL_QueryTexture(_renderer->getTexture(), nullptr, nullptr, &w, &h);
     return true;
 }
 

@@ -612,6 +612,9 @@ public:
     IMPL_GLOBAL_GETTER_REF(Follower, nFollower, USHORT)
     IMPL_GLOBAL_GETTER_REF(InMainGame, fInMainGame, BOOL)
     IMPL_GLOBAL_GETTER_REF(Viewport, viewport, PAL_POS)
+    IMPL_GLOBAL_GETTER_REF(PartyDirection, wPartyDirection, WORD)
+    IMPL_GLOBAL_GETTER_PTR(rgTrail, rgTrail, TRAIL)
+    IMPL_GLOBAL_GETTER_REF(Layer, wLayer, WORD)
 
 private:
     void readGlobalGameData();

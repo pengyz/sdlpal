@@ -7,6 +7,7 @@
 namespace engine {
 class PalGlobals;
 class PalResources;
+class PalScene;
 }
 
 namespace editor {
@@ -35,7 +36,6 @@ private:
 
 private:
     editor::NativeWindow* _mainWindow = nullptr; // main window
-    engine::PalInput* _input = nullptr; // input handler
     engine::PalGlobals* _globals = nullptr; // global variables
     engine::PalResources* _resources = nullptr; // game resources
 };

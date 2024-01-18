@@ -238,4 +238,56 @@ void PalResources::setLoadFlags(BYTE bFlags)
     _resources->bLoadFlags |= bFlags;
 }
 
+LPSPRITE PalResources::getPlayerSprite(BYTE bPlayerIndex)
+{
+    if (_resources == NULL || bPlayerIndex > MAX_PLAYABLE_PLAYER_ROLES - 1) {
+        return NULL;
+    }
+
+    return _resources->rglpPlayerSprite[bPlayerIndex];
+}
+
+LPCBITMAPRLE PalResources::spriteGetFrame(LPCSPRITE lpSprite, INT iFrameNum)
+{
+    int imagecount, offset;
+
+    if (lpSprite == NULL) {
+        return NULL;
+    }
+
+    //
+    // Hack for broken sprites like the Bloody-Mouth Bug
+    //
+    //   imagecount = (lpSprite[0] | (lpSprite[1] << 8)) - 1;
+    imagecount = (lpSprite[0] | (lpSprite[1] << 8));
+
+    if (iFrameNum < 0 || iFrameNum >= imagecount) {
+        //
+        // The frame does not exist
+        //
+        return NULL;
+    }
+
+    //
+    // Get the offset of the frame
+    //
+    iFrameNum <<= 1;
+    offset = ((lpSprite[iFrameNum] | (lpSprite[iFrameNum + 1] << 8)) << 1);
+    if (offset == 0x18444)
+        offset = (WORD)offset;
+    return &lpSprite[offset];
+}
+
+LPSPRITE PalResources::getEventObjectSprite(WORD wEventObjectID)
+{
+    wEventObjectID -= _globals->getGameData().rgScene[_globals->getNumScene() - 1].wEventObjectIndex;
+    wEventObjectID--;
+
+    if (_resources == NULL || wEventObjectID >= _resources->nEventObject) {
+        return NULL;
+    }
+
+    return _resources->lppEventObjectSprites[wEventObjectID];
+}
+
 }

@@ -3,7 +3,9 @@
 #include "SDL_error.h"
 #include "SDL_render.h"
 #include "common.h"
+#include "engine/pal_input.h"
 #include "engine/pal_renderer.h"
+#include "engine/pal_scene.h"
 #include "game_panel.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -26,6 +28,7 @@ NativeWindow::NativeWindow(engine::PalGlobals* globals, engine::PalResources* re
     , _globals(globals)
     , _resources(resources)
     , _palRenderer(nullptr)
+    , _input(nullptr)
 {
 }
 
@@ -49,6 +52,8 @@ bool NativeWindow::init()
         UTIL_LogOutput(LOGLEVEL_ERROR, "init gameRenderer failed !");
         return false;
     }
+    _input = new engine::PalInput(_palRenderer);
+    _scene = new engine::PalScene(_globals, _resources, _palRenderer);
     bOk = _initImGui(_renderer);
     if (!bOk) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "initImGui failed !");
@@ -57,7 +62,7 @@ bool NativeWindow::init()
 
     // 创建窗口
     createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _globals, _resources);
-    createImGuiPanel<GamePanel>(SubPanels::game, GAME_WIDTH, GAME_HEIGHT, "game", _palRenderer);
+    createImGuiPanel<GamePanel>(SubPanels::game, GAME_WIDTH, GAME_HEIGHT, "game", _palRenderer, _input);
     return true;
 }
 

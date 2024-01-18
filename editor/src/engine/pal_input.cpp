@@ -1,7 +1,7 @@
 #include "pal_input.h"
-#include "pal_renderer.h"
 #include "global.h"
 #include "imgui_impl_sdl2.h"
+#include "pal_renderer.h"
 
 extern "C" {
 void PAL_Shutdown(int);
@@ -54,7 +54,9 @@ void PalInput::processEvent()
         ImGui_ImplSDL2_ProcessEvent(&evt);
     }
 
-    _updateKeyboardState();
+    if (_hasFocus) {
+        _updateKeyboardState();
+    }
 }
 
 int PalInput::_pollEvent(SDL_Event* event)

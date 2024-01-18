@@ -82,7 +82,7 @@ void SDL2_Backend::RenderCopy()
     SDL_UnlockTexture(_texture);
 
     SDL_RenderClear(_renderer);
-    SDL_RenderCopy(_renderer, _texture, NULL, NULL);
+    // SDL_RenderCopy(_renderer, _texture, NULL, NULL);
     // if (gConfig.fUseTouchOverlay) {
     //     SDL_RenderCopy(renderer(), gpTouchOverlay, NULL, &gOverlayRect);
     // }

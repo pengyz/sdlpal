@@ -14,6 +14,8 @@ namespace engine {
 class PalRenderer;
 class PalGlobals;
 class PalResources;
+class PalInput;
+class PalScene;
 }
 
 enum class SubPanels {
@@ -62,7 +64,11 @@ public:
 
     SDL_Renderer* getRenderer() const { return _renderer; }
 
-    engine::PalRenderer* getPalRenderer() {return _palRenderer; }
+    engine::PalRenderer* getPalRenderer() { return _palRenderer; }
+
+    engine::PalInput* getInput() { return _input; }
+
+    engine::PalScene* getScene() { return _scene; }
 
     /**
      * @brief 颜色清屏
@@ -92,5 +98,7 @@ protected:
     engine::PalGlobals* _globals = nullptr;
     engine::PalResources* _resources = nullptr;
     engine::PalRenderer* _palRenderer = nullptr;
+    engine::PalInput* _input = nullptr;
+    engine::PalScene* _scene = nullptr; // game scene
 };
 } // namespace editor

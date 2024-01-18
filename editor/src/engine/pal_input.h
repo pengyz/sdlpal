@@ -51,6 +51,8 @@ enum PALKEY
 
     PALINPUTSTATE* getInputState() { return &_inputState; }
 
+    void setFocus(bool focus) { _hasFocus = focus; }
+
 private:
     int _pollEvent(SDL_Event* event);
     void _updateKeyboardState();
@@ -63,5 +65,6 @@ private:
     PFN_input_event_filter _input_event_filter = [](const SDL_Event* event, volatile PALINPUTSTATE* state) { return 0; };
     engine::PalRenderer* _renderer = nullptr;
     bool fEnableKeyRepeat = false;
+    bool _hasFocus = false;
 };
 }

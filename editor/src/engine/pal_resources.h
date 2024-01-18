@@ -36,6 +36,10 @@ public:
     void freeResources();
     void loadResources();
     void setLoadFlags(BYTE bFlags);
+    LPSPRITE getPlayerSprite(BYTE bPlayerIndex);
+    LPCBITMAPRLE spriteGetFrame(LPCSPRITE lpSprite, INT iFrameNum);
+    LPSPRITE getEventObjectSprite(WORD wEventObjectID);
+    
 
 private:
     void freePlayerSprites();

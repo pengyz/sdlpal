@@ -5,6 +5,7 @@
 #include "common.h"
 #include "engine/pal_global.h"
 #include "engine/pal_resources.h"
+#include "engine/pal_scene.h"
 #include "engine/pal_script.h"
 #include "game.h"
 #include "imgui_impl_sdl2.h"
@@ -82,9 +83,6 @@ bool PALEditor::init()
         UTIL_LogOutput(LOGLEVEL_ERROR, "initalize editorWindow failed !");
         return false;
     }
-    // save renderer
-
-    _input = new engine::PalInput(_mainWindow->getPalRenderer());
 
     if (!initGameEngine()) {
         TerminateOnError("Could not initialize Game !");
@@ -110,14 +108,14 @@ int PALEditor::runLoop()
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     _globals->getNumScene() = 15;
-    _mainWindow->getPalRenderer()->setPalette(0, true);
+    _mainWindow->getPalRenderer()->setPalette(0, false);
     while (TRUE) {
         _resources->loadResources();
-        _input->clearKeyState();
+        _mainWindow->getInput()->clearKeyState();
 
         // process sdl
         while (!SDL_TICKS_PASSED(SDL_GetTicks(), (dwTime))) {
-            _input->processEvent();
+            _mainWindow->getInput()->processEvent();
             SDL_Delay(1);
         }
         dwTime = SDL_GetTicks() + FRAME_TIME;
@@ -132,12 +130,11 @@ int PALEditor::runLoop()
         // PAL_MakeScene();
         PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 0);
         PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 1);
-        // PAL_SceneDrawSprites();
+        _mainWindow->getScene()->drawSprites();
         // PAL_ShowDialogText(PAL_GetMsg(1885));
         // PAL_ClearDialog(TRUE);
         // PAL_StartDialog(kDialogLower, (BYTE)0, 39, false);
         _mainWindow->getPalRenderer()->updateScreen(nullptr);
-        SDL_SaveBMP(pScreen, "./screen.bmp");
 
         if (_globals->getEnteringScene()) {
             _globals->getEnteringScene() = FALSE;
@@ -158,7 +155,7 @@ int PALEditor::runLoop()
         ImGuiIO& io = ImGui::GetIO();
         SDL_RenderSetScale(_mainWindow->getRenderer(), io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         SDL_SetRenderDrawColor(_mainWindow->getRenderer(), (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
-        // SDL_RenderClear(_gameRender->getRenderer());
+        SDL_RenderClear(_mainWindow->getPalRenderer()->getRenderer());
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
         _mainWindow->getPalRenderer()->present();
     }
@@ -194,7 +191,7 @@ bool PALEditor::initGameEngine()
     //     TerminateOnError("Could not load fonts: %d.\n", e);
     // }
 
-    _input->init();
+    _mainWindow->getInput()->init();
     _resources->init();
     AUDIO_OpenDevice();
     // PAL_AVIInit();
