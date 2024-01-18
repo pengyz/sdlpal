@@ -28,9 +28,9 @@ PalRenderer::~PalRenderer()
 bool PalRenderer::init(SDL_Window* window, int width, int height)
 {
     // create surfaces
-    _screen = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
-    _screenBak = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
-    _screenReal = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 32,
+    _screen = SDL_CreateRGBSurface(SDL_SWSURFACE, SCENE_WIDTH, SCENE_HEIGHT, 8, 0, 0, 0, 0);
+    _screenBak = SDL_CreateRGBSurface(SDL_SWSURFACE, SCENE_WIDTH, SCENE_HEIGHT, 8, 0, 0, 0, 0);
+    _screenReal = SDL_CreateRGBSurface(SDL_SWSURFACE, SCENE_WIDTH, SCENE_HEIGHT, 32,
         0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
     // create render backend
     _renderBackend = new render::SDL2_Backend(_renderer, _screenReal, true);
@@ -134,8 +134,8 @@ void PalRenderer::setPalette(SDL_Color rgPalette[256])
 
     rect.x = 0;
     rect.y = 0;
-    rect.w = 320;
-    rect.h = 200;
+    rect.w = SCENE_WIDTH;
+    rect.h = SCENE_HEIGHT;
 
     updateScreen(&rect);
 #else
@@ -202,13 +202,13 @@ void PalRenderer::updateScreen(const SDL_Rect* lpRect)
         //
         srcrect.x = 0;
         srcrect.y = 0;
-        srcrect.w = 320;
-        srcrect.h = 200 - _wShakeLevel;
+        srcrect.w = SCENE_WIDTH;
+        srcrect.h = SCENE_WIDTH - _wShakeLevel;
 
         dstrect.x = 0;
         dstrect.y = screenRealY;
-        dstrect.w = 320 * _screenReal->w / _screen->w;
-        dstrect.h = (200 - _wShakeLevel) * screenRealHeight / _screen->h;
+        dstrect.w = SCENE_WIDTH * _screenReal->w / _screen->w;
+        dstrect.h = (SCENE_WIDTH - _wShakeLevel) * screenRealHeight / _screen->h;
 
         if (_wShakeTime & 1) {
             srcrect.y = _wShakeLevel;
@@ -288,8 +288,8 @@ VOID PalRenderer::resize(int w, int h)
 
     rect.x = 0;
     rect.y = 0;
-    rect.w = 320;
-    rect.h = 200;
+    rect.w = SCENE_WIDTH;
+    rect.h = SCENE_HEIGHT;
 
     updateScreen(&rect);
 #else

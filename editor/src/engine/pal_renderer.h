@@ -4,6 +4,9 @@
 #include "SDL.h"
 #include <array>
 
+#define SCENE_WIDTH     320
+#define SCENE_HEIGHT    200
+
 namespace render {
 class RenderBackend;
 }
@@ -11,9 +14,6 @@ class RenderBackend;
 namespace engine {
 
 using PaletteColors = std::array<SDL_Color, 256>;
-
-#define GAME_WIDTH 320
-#define GAME_HEIGHT 200
 
 /**
  * @brief 渲染器

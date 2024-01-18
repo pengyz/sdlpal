@@ -48,7 +48,7 @@ bool NativeWindow::init()
     _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     // initialize gameRender
     _palRenderer = new engine::PalRenderer(_renderer);
-    if (!_palRenderer->init(_window, GAME_WIDTH, GAME_HEIGHT)) {
+    if (!_palRenderer->init(_window, SCENE_WIDTH, SCENE_HEIGHT)) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "init gameRenderer failed !");
         return false;
     }
@@ -62,7 +62,7 @@ bool NativeWindow::init()
 
     // 创建窗口
     createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _globals, _resources);
-    createImGuiPanel<GamePanel>(SubPanels::game, GAME_WIDTH, GAME_HEIGHT, "game", _palRenderer, _input);
+    createImGuiPanel<GamePanel>(SubPanels::game, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "game", _palRenderer, _input);
     return true;
 }
 

@@ -119,7 +119,7 @@ int PALEditor::runLoop()
             SDL_Delay(1);
         }
         dwTime = SDL_GetTicks() + FRAME_TIME;
-        static SDL_Rect rect = { 0, 0, 320, 200 };
+        static SDL_Rect rect = { 0, 0, SCENE_WIDTH, SCENE_HEIGHT };
         _globals->getViewport() = PAL_XY(592, 690);
         rect.x = PAL_X(_globals->getViewport());
         rect.y = PAL_Y(_globals->getViewport());

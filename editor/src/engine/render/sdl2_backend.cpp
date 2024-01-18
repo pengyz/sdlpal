@@ -5,6 +5,7 @@
 #include "util.h"
 #include <cfloat>
 #include <cmath>
+#include "engine/pal_renderer.h"
 
 namespace render {
 
@@ -22,29 +23,29 @@ SDL_Texture* SDL2_Backend::CreateTexture(int width, int height)
     //
     if (keepAspectRatio() && fabs(ratio - 1.6f) > FLT_EPSILON) {
         if (ratio > 1.6f) {
-            texture_height = 200;
-            texture_width = (int)(200 * ratio) & ~0x3;
-            ratio = (float)height / 200.0f;
+            texture_height = SCENE_HEIGHT;
+            texture_width = (int)(SCENE_HEIGHT * ratio) & ~0x3;
+            ratio = (float)height / SCENE_HEIGHT;
         } else {
-            texture_width = 320;
-            texture_height = (int)(320 / ratio) & ~0x3;
-            ratio = (float)width / 320.0f;
+            texture_width = SCENE_WIDTH;
+            texture_height = (int)(SCENE_WIDTH / ratio) & ~0x3;
+            ratio = (float)width / SCENE_WIDTH;
         }
 
-        unsigned short w = (unsigned short)(ratio * 320.0f) & ~0x3;
-        unsigned short h = (unsigned short)(ratio * 200.0f) & ~0x3;
-        _textureRect.x = (texture_width - 320) / 2;
-        _textureRect.y = (texture_height - 200) / 2;
-        _textureRect.w = 320;
-        _textureRect.h = 200;
+        unsigned short w = (unsigned short)(ratio * SCENE_WIDTH) & ~0x3;
+        unsigned short h = (unsigned short)(ratio * SCENE_HEIGHT) & ~0x3;
+        _textureRect.x = (texture_width - SCENE_WIDTH) / 2;
+        _textureRect.y = (texture_height - SCENE_HEIGHT) / 2;
+        _textureRect.w = SCENE_WIDTH;
+        _textureRect.h = SCENE_HEIGHT;
 
         // VIDEO_SetupTouchArea(width, height, w, h);
     } else {
-        texture_width = 320;
-        texture_height = 200;
+        texture_width = SCENE_WIDTH;
+        texture_height = SCENE_HEIGHT;
         _textureRect.x = _textureRect.y = 0;
-        _textureRect.w = 320;
-        _textureRect.h = 200;
+        _textureRect.w = SCENE_WIDTH;
+        _textureRect.h = SCENE_HEIGHT;
 
         // VIDEO_SetupTouchArea(width, height, width, height);
     }
@@ -73,8 +74,8 @@ void SDL2_Backend::RenderCopy()
     for (int y = 0; y < _textureRect.h; y++, src += _screenReal->pitch) {
         memset(pixels, 0, left_pitch);
         pixels += left_pitch;
-        memcpy(pixels, src, 320 << 2);
-        pixels += 320 << 2;
+        memcpy(pixels, src, SCENE_WIDTH << 2);
+        pixels += SCENE_WIDTH << 2;
         memset(pixels, 0, right_pitch);
         pixels += right_pitch;
     }

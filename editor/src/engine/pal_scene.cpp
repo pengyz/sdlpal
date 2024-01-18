@@ -310,7 +310,7 @@ void PalScene::drawSprites()
         x = (SHORT)lpEvtObj->x - PAL_X(_globals->getViewport());
         x -= PAL_RLEGetWidth(lpFrame) / 2;
 
-        if (x >= 320 || x < -(int)PAL_RLEGetWidth(lpFrame)) {
+        if (x >= SCENE_WIDTH || x < -(int)PAL_RLEGetWidth(lpFrame)) {
             //
             // outside the screen; skip it
             //
