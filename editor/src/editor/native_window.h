@@ -19,8 +19,10 @@ class PalScene;
 }
 
 enum class SubPanels {
+    file,
     scene,
     game,
+    script,
     sprites
 };
 
@@ -32,7 +34,10 @@ namespace editor {
  */
 class EditorModel {
 public:
+    bool _file_panel = true; // 默认显示
     bool _scene_panel = true; //默认显示
+    bool _script_panel = false; // 默认不显示
+    bool _demo_window = false; // demo 默认不显示
 };
 
 class NativeWindow : public Window {

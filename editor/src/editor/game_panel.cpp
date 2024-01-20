@@ -8,7 +8,7 @@
 namespace editor {
 
 GamePanel::GamePanel(int width, int height,
-    const std::string& title, engine::PalRenderer* renderer, engine::PalInput* input)
+    const std::string& title, bool visible, engine::PalRenderer* renderer, engine::PalInput* input)
     : Window(width, height, title)
     , _renderer(renderer)
     , _input(input)

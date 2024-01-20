@@ -2,7 +2,6 @@
 
 #include "window.h"
 
-
 namespace engine {
   class PalGlobals;
   class PalResources;
@@ -10,15 +9,10 @@ namespace engine {
 
 namespace editor {
 
-struct ScenePanelModel {
-    int item_current_idx = 0;
-    int object_selected_idx = -1;
-};
-
-class ScenePanel : public Window {
+class FilePanel : public Window {
 public:
-    ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources);
-    ~ScenePanel();
+    FilePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources);
+    ~FilePanel();
     /**
      * @brief 渲染逻辑
      *
@@ -26,10 +20,8 @@ public:
     virtual void render() override;
 
     virtual bool init() override;
-    
 
 private:
-    ScenePanelModel model;
     engine::PalGlobals* _globals = nullptr;
     engine::PalResources* _resources = nullptr;
 };

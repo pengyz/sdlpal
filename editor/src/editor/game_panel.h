@@ -11,7 +11,7 @@ namespace editor {
 
 class GamePanel : public Window {
 public:
-    GamePanel(int width, int height, const std::string& title, engine::PalRenderer* renderer, engine::PalInput* input);
+    GamePanel(int width, int height, const std::string& title, bool visible, engine::PalRenderer* renderer, engine::PalInput* input);
     ~GamePanel();
     /**
      * @brief 渲染逻辑

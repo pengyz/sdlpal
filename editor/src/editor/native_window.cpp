@@ -6,6 +6,7 @@
 #include "engine/pal_input.h"
 #include "engine/pal_renderer.h"
 #include "engine/pal_scene.h"
+#include "file_panel.h"
 #include "game_panel.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -13,6 +14,7 @@
 #include "pal_config.h"
 #include "palcfg.h"
 #include "scene_panel.h"
+#include "script_panel.h"
 #include "util.h"
 #include "window.h"
 #include <cassert>
@@ -61,8 +63,10 @@ bool NativeWindow::init()
     }
 
     // 创建窗口
-    createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _globals, _resources);
-    createImGuiPanel<GamePanel>(SubPanels::game, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "game", _palRenderer, _input);
+    createImGuiPanel<FilePanel>(SubPanels::file, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "file", _model._file_panel, _globals, _resources);
+    createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _model._scene_panel, _globals, _resources);
+    createImGuiPanel<ScriptPanel>(SubPanels::script, 800, 600, "script", _model._script_panel, _globals, _resources);
+    createImGuiPanel<GamePanel>(SubPanels::game, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "game", true, _palRenderer, _input);
     return true;
 }
 
@@ -75,8 +79,13 @@ void NativeWindow::render()
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_AutoHideTabBar);
 
     for (auto w : _imgui_panels) {
-        if (w.second->visible())
+        if (w.second->getVisible()) {
             w.second->render();
+        }
+    }
+
+    if (_model._demo_window) {
+        ImGui::ShowDemoWindow(&_model._demo_window);
     }
 }
 
@@ -93,18 +102,36 @@ void NativeWindow::_paintMainMenuBar()
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Layout")) {
+            const char* window_visible[] = {
+                "hide",
+                "show",
+            };
             if (ImGui::MenuItem("Reset", "Alt + r", nullptr)) {
                 UTIL_LogOutput(LOGLEVEL_INFO, "Reset all panels.");
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("Reset all editor panels");
             }
-            if (ImGui::MenuItem("Scene Panel", "Alt + n", &_model._scene_panel)) {
-                UTIL_LogOutput(LOGLEVEL_INFO, "show file panel.");
-                if (_model._scene_panel != _imgui_panels[SubPanels::scene]->visible()) {
-                    _imgui_panels[SubPanels::scene]->visible(_model._scene_panel);
+            if (ImGui::MenuItem("File Panel", "Alt + f", &_model._file_panel)) {
+                UTIL_LogOutput(LOGLEVEL_INFO, "%s file panel.", window_visible[_model._file_panel]);
+                if (_model._file_panel != _imgui_panels[SubPanels::file]->getVisible()) {
+                    _imgui_panels[SubPanels::file]->setVisible(_model._file_panel);
                 }
             }
+            if (ImGui::MenuItem("Scene Panel", "Alt + n", &_model._scene_panel)) {
+                UTIL_LogOutput(LOGLEVEL_INFO, "%s scene panel.", window_visible[_model._scene_panel]);
+                if (_model._scene_panel != _imgui_panels[SubPanels::scene]->getVisible()) {
+                    _imgui_panels[SubPanels::scene]->setVisible(_model._scene_panel);
+                }
+            }
+            if (ImGui::MenuItem("Script Panel", "Alt + s", &_model._script_panel)) {
+                UTIL_LogOutput(LOGLEVEL_INFO, "%s script panel.", window_visible[_model._script_panel]);
+                if (_model._script_panel != _imgui_panels[SubPanels::script]->getVisible()) {
+                    _imgui_panels[SubPanels::script]->setVisible(_model._script_panel);
+                }
+            }
+            ImGui::MenuItem("ImGui Demo", "Alt + d", &_model._demo_window);
+
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("Reset all editor panels");
             }
