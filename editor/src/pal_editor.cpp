@@ -1,4 +1,4 @@
-#include "paleditor.h"
+#include "pal_editor.h"
 #include "3rd/SDL/include/SDL.h"
 #include "3rd/SDL/include/SDL_video.h"
 #include "audio.h"
@@ -95,8 +95,9 @@ bool PALEditor::init()
 
 void PALEditor::deinit()
 {
-    ImGui::DestroyContext();
+    ImGui_ImplSDLRenderer2_Shutdown();
     ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 }
 
 int PALEditor::runLoop()
@@ -109,13 +110,17 @@ int PALEditor::runLoop()
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     _globals->getNumScene() = 1;
     _mainWindow->getPalRenderer()->setPalette(0, false);
-    while (TRUE) {
+    bool isRunning = true;
+    while (isRunning) {
         _resources->loadResources();
         _mainWindow->getInput()->clearKeyState();
 
         // process sdl
         while (!SDL_TICKS_PASSED(SDL_GetTicks(), (dwTime))) {
-            _mainWindow->getInput()->processEvent();
+            if (_mainWindow->getInput()->processEvent()) {
+                isRunning = false;
+                break;
+            }
             SDL_Delay(1);
         }
         dwTime = SDL_GetTicks() + FRAME_TIME;

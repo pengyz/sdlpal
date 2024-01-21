@@ -1,5 +1,5 @@
 #include "common.h"
-#include "paleditor.h"
+#include "pal_editor.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,7 +9,6 @@ extern "C" {
 #include "../../global.h"
 #include "../../text.h"
 #include "../../util.h"
-extern CONFIGURATION gConfig;
 
 /*++
   Purpose:
@@ -28,16 +27,6 @@ extern CONFIGURATION gConfig;
 VOID PAL_Shutdown(
     int exit_code)
 {
-    PAL_FreeFont();
-    // PAL_FreeResources();
-    PAL_FreeUI();
-    PAL_FreeText();
-    //
-    // global needs be free in last
-    // since subsystems may needs config content during destroy
-    // which also cleared here
-    //
-    PAL_FreeGlobals();
     SDL_Quit();
     UTIL_Platform_Quit();
     return;

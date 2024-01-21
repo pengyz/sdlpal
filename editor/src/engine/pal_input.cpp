@@ -46,17 +46,21 @@ static const int g_KeyMap[][2] = {
    { SDLK_s,         PalInput::kKeyStatus }
 };
 // clang-format on
-void PalInput::processEvent()
+bool PalInput::processEvent()
 {
     SDL_Event evt;
-    while (_pollEvent(&evt)) {
+    int ret = -1;
+    while ((ret = _pollEvent(&evt))) {
         // process ImGui event
         ImGui_ImplSDL2_ProcessEvent(&evt);
+        if (ret == -1)
+            return true; // game exited
     }
 
     if (_hasFocus) {
         _updateKeyboardState();
     }
+    return false;
 }
 
 int PalInput::_pollEvent(SDL_Event* event)
@@ -65,7 +69,10 @@ int PalInput::_pollEvent(SDL_Event* event)
 
     int ret = SDL_PollEvent(&evt);
     if (ret != 0 && !_input_event_filter(&evt, &_inputState)) {
-        _eventFilter(&evt);
+        if (_eventFilter(&evt)) {
+            // -1 means window exit.
+            return -1;
+        }
     }
 
     if (event != NULL) {
@@ -213,6 +220,7 @@ int PalInput::_eventFilter(const SDL_Event* lpEvent)
         // clicked on the close button of the window. Quit immediately.
         //
         PAL_Shutdown(0);
+        return 1;
     }
 
     // PAL_KeyboardEventFilter(lpEvent);

@@ -45,7 +45,13 @@ enum PALKEY
 
     void init();
 
-    void processEvent();
+    /**
+     * @brief process game events
+     * 
+     * @return true if exit
+     * @return false  not exit
+     */
+    bool processEvent();
 
     void clearKeyState();
 
