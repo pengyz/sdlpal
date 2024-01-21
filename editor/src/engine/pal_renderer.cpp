@@ -1,4 +1,6 @@
 #include "pal_renderer.h"
+#include "3rd/SDL/include/SDL_render.h"
+#include "3rd/SDL/include/SDL_surface.h"
 #include "3rd/SDL/include/SDL_video.h"
 #include "palette.h"
 #include "render/sdl2_backend.h"
@@ -97,8 +99,6 @@ void PalRenderer::deinit()
     }
     _screenReal = NULL;
 }
-
-SDL_Texture* PalRenderer::texture() { return _renderBackend->texture(); }
 
 void PalRenderer::fillRect(SDL_Colour color, const SDL_Rect& rect)
 {

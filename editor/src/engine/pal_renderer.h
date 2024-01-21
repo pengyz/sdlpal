@@ -4,8 +4,8 @@
 #include "SDL.h"
 #include <array>
 
-#define SCENE_WIDTH     320
-#define SCENE_HEIGHT    200
+#define SCENE_WIDTH 320
+#define SCENE_HEIGHT 200
 
 namespace render {
 class RenderBackend;
@@ -39,13 +39,6 @@ public:
      *
      */
     void deinit();
-
-    /**
-     * @brief 获取texuture
-     *
-     * @return SDL_Texture*
-     */
-    SDL_Texture* texture();
 
     /**
      * @brief 颜色填充

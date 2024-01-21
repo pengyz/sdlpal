@@ -1,27 +1,39 @@
 #include "scene_panel.h"
+#include "3rd/SDL/include/SDL_render.h"
+#include "3rd/SDL/include/SDL_surface.h"
 #include "engine/pal_global.h"
+#include "engine/pal_renderer.h"
 #include "engine/pal_resources.h"
 #include "global.h"
+#include "gui_convertor.h"
+#include "gui_template.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "palcommon.h"
+#include "palette.h"
+#include "sprite_panel.h"
 #include "util.h"
 #include <SDL.h>
 #include <cfloat>
-#include <functional>
-#include <sstream>
 #include <string>
-#include <type_traits>
 
 namespace editor {
 
-ScenePanel::ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources)
+ScenePanel::ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources, engine::PalRenderer* renderer)
     : Window(width, height, title, visible)
     , _globals(globals)
     , _resources(resources)
+    , _renderer(renderer)
 {
 }
 
-ScenePanel::~ScenePanel() { }
+ScenePanel::~ScenePanel()
+{
+    if (_spritePanel) {
+        delete _spritePanel;
+        _spritePanel = nullptr;
+    }
+}
 
 void showSceneList(ScenePanelModel& model, engine::PalGlobals* globals, engine::PalResources* resources)
 {
@@ -54,92 +66,8 @@ void showSceneList(ScenePanelModel& model, engine::PalGlobals* globals, engine::
     }
 }
 
-template <typename T, typename FN_getConvertTable>
-void __addObjectPropertyEditable(FN_getConvertTable convertTable, const char* propName, T& value, std::function<bool(T)> cb = nullptr, const char* errorPopup = nullptr)
+void ScenePanel::drawObjectPropertyTable(int n, WORD wEventObjectID, engine::LPEVENTOBJECT pObject)
 {
-    std::pair<const char**, size_t> p = std::make_pair(nullptr, 0);
-    if (convertTable) {
-        p = convertTable();
-    }
-    ImGui::TableNextColumn();
-    ImGui::Text("%s", propName);
-    ImGui::TableNextColumn();
-    char buf[128];
-    sprintf(buf, "##%s", propName);
-    bool ret = false;
-    T val;
-    if (p.first && p.second) {
-        // create a selectable table
-        const char* preview_value = nullptr;
-        if (value >= 0 && value < p.second) {
-            preview_value = p.first[value];
-        }
-        ImGui::SetNextItemWidth(-FLT_MIN);
-        if (ImGui::BeginCombo(buf, preview_value)) {
-            for (int i = 0; i < p.second; i++) {
-                if (ImGui::Selectable(p.first[i], i == value)) {
-                    // update value
-                    value = i;
-                }
-            }
-            ImGui::EndCombo();
-        }
-    } else {
-        ImGui::SetNextItemWidth(-FLT_MIN);
-        if (std::is_integral<T>::value) {
-            int tmp_val = value;
-            ret = ImGui::InputInt(buf, &tmp_val, 1, 100, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
-            val = tmp_val;
-        } else if (std::is_floating_point<T>::value) {
-            double tmp_val = value;
-            ret = ImGui::InputDouble(buf, &tmp_val, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
-            val = tmp_val;
-        } else if (std::is_pointer<T>::value) {
-        }
-    }
-    if (ret) {
-        if (cb && !cb(val)) {
-            if (errorPopup) {
-                ImGui::OpenPopup(errorPopup);
-            }
-            return;
-        }
-        value = val;
-    }
-    ImGui::TableNextRow();
-}
-
-template <typename T>
-void addObjectPropertyReadonly(const char* propName, T& value)
-{
-    ImGui::TableNextColumn();
-    ImGui::Text("%s", propName);
-    ImGui::TableNextColumn();
-    ImGui::Text("%s", (std::stringstream() << value).str().c_str());
-    ImGui::TableNextRow();
-}
-
-template <typename T>
-void addObjectPropertyEditable(const char* propName, T& value, std::function<bool(T)> cb = nullptr, const char* errorPopup = nullptr)
-{
-    __addObjectPropertyEditable<T, std::pair<const char**, size_t>()>(nullptr, propName, value, cb, errorPopup);
-}
-
-template <typename T>
-void addObjectPropertyEditableNoCheck(const char* propName, T& value)
-{
-    __addObjectPropertyEditable<T, std::pair<const char**, size_t>()>(nullptr, propName, value, std::function<bool(T)>(), nullptr);
-}
-
-template <typename T, typename FN_getConvertTable>
-void addObjectPropertySelectable(FN_getConvertTable convertTable, const char* propName, T& value)
-{
-    __addObjectPropertyEditable<T, FN_getConvertTable>(convertTable, propName, value, nullptr, nullptr);
-}
-
-void drawObjectPropertyTable(int n, engine::LPEVENTOBJECT pObject)
-{
-
     // error popups
     std::map<std::string, std::function<void()>> _errorPopups;
     auto invokeErrorPopups = [&_errorPopups]() {
@@ -164,47 +92,27 @@ void drawObjectPropertyTable(int n, engine::LPEVENTOBJECT pObject)
         addObjectPropertyEditable("vanishTime", pObject->sVanishTime);
         addObjectPropertyEditableNoCheck("x", pObject->x);
         addObjectPropertyEditableNoCheck("y", pObject->y);
-        addObjectPropertyEditable("layer", pObject->sLayer, std::function<bool(SHORT)>(), nullptr);
+        addObjectPropertyEditable("layer", pObject->sLayer);
         addObjectPropertyReadonly("triggerScript", pObject->wTriggerScript);
         addObjectPropertyEditable("autoScript", pObject->wAutoScript);
-        addObjectPropertySelectable([]() {
-            static const char* _names[] = {
-                "kObjStateHidden",
-                "kObjStateNormal",
-                "kObjStateBlocker"
-            };
-            return std::make_pair(_names, sizeof(_names) / sizeof(_names[0]));
-        },
-            "state", pObject->sState);
-        addObjectPropertySelectable([]() {
-            static const char* _names[] = {
-                "kTriggerNone",
-                "kTriggerSearchNear",
-                "kTriggerSearchNormal",
-                "kTriggerSearchFar",
-                "kTriggerTouchNear",
-                "kTriggerTouchNormal",
-                "kTriggerTouchFar",
-                "kTriggerTouchFarther",
-                "kTriggerTouchFarthest"
-            };
-            return std::make_pair(_names, sizeof(_names) / sizeof(_names[0]));
-        },
-            "triggerMode", pObject->wTriggerMode);
-        addObjectPropertyReadonly("spriteNum", pObject->wSpriteNum);
+        addObjectPropertySelectable(obj_state_convertor, "state", pObject->sState);
+        addObjectPropertySelectable(obj_trigger_mode_convertor, "triggerMode", pObject->wTriggerMode);
+        addObjectPropertyReadonly("spriteNum", pObject->wSpriteNum, std::function<void(decltype(pObject->wSpriteNum))>([this, wEventObjectID, pObject](decltype(pObject->wSpriteNum) wScriptNum) {
+            // show button
+            if (wScriptNum) {
+                ImGui::SameLine();
+                char buf[64];
+                sprintf(buf, "预览##%d", wScriptNum);
+                if (ImGui::Button(buf)) {
+                    // show preview
+                    this->_spritePanel->openWindow(wEventObjectID, pObject);
+                }
+            }
+        }));
         addObjectPropertyReadonly("spriteFrames", pObject->nSpriteFrames);
-        addObjectPropertySelectable([]() {
-            static const char* _names[] = {
-                "kDirSouth",
-                "kDirWest",
-                "kDirNorth",
-                "kDirEast",
-            };
-            return std::make_pair(_names, sizeof(_names) / sizeof(_names[0]));
-        },
-            "direction", pObject->wDirection);
+        addObjectPropertySelectable(obj_direction_converter, "direction", pObject->wDirection);
         addObjectPropertyEditable(
-            "currFrame", pObject->wCurrentFrameNum, std::function<bool(WORD)>([pObject](WORD val) {
+            "currFrame", pObject->wCurrentFrameNum, nullptr, std::function<bool(WORD)>([pObject](WORD val) {
                 return val >= 0 && val < pObject->nSpriteFrames;
             }),
             "Err_ValueOutOfRange");
@@ -221,6 +129,8 @@ void drawObjectPropertyTable(int n, engine::LPEVENTOBJECT pObject)
         invokeErrorPopups();
         ImGui::EndTable();
     }
+    // render sprite panel
+    _spritePanel->render();
 }
 
 void ScenePanel::render()
@@ -254,13 +164,13 @@ void ScenePanel::render()
                                 // close previous open item
                                 sprintf(buf, "objectId: %d", model.object_selected_idx + beginObjectIndex);
                                 ImGui::TreeNodeSetOpen(ImGui::GetID(buf), false);
-                                // TODO: reset all ui state
+                                _spritePanel->closeWindow();
                             }
                             model.object_selected_idx = n;
                         }
                         if (model.object_selected_idx == n) {
                             // draw object property table
-                            drawObjectPropertyTable(n, pObject);
+                            drawObjectPropertyTable(n, wEventObjectID, pObject);
                         }
                     }
                 }
@@ -273,6 +183,7 @@ void ScenePanel::render()
 
 bool ScenePanel::init()
 {
+    _spritePanel = new SpritePanel(800, 600, "SpriteViewer", false, _globals, _resources, _renderer);
     return true;
 }
 

@@ -64,7 +64,7 @@ bool NativeWindow::init()
 
     // 创建窗口
     createImGuiPanel<FilePanel>(SubPanels::file, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "file", _model._file_panel, _globals, _resources);
-    createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _model._scene_panel, _globals, _resources);
+    createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _model._scene_panel, _globals, _resources, _palRenderer);
     createImGuiPanel<ScriptPanel>(SubPanels::script, 800, 600, "script", _model._script_panel, _globals, _resources);
     createImGuiPanel<GamePanel>(SubPanels::game, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "game", true, _palRenderer, _input);
     return true;

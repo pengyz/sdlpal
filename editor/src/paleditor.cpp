@@ -78,7 +78,7 @@ bool PALEditor::init()
     },
         LOGLEVEL_DEBUG);
 
-    _mainWindow = new editor::NativeWindow(_globals, _resources, 1024, 768, "pal editor");
+    _mainWindow = new editor::NativeWindow(_globals, _resources, 1600, 900, "pal editor");
     if (!_mainWindow->init()) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "initalize editorWindow failed !");
         return false;
@@ -107,7 +107,7 @@ int PALEditor::runLoop()
     _globals->getInMainGame() = TRUE;
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    _globals->getNumScene() = 15;
+    _globals->getNumScene() = 1;
     _mainWindow->getPalRenderer()->setPalette(0, false);
     while (TRUE) {
         _resources->loadResources();
@@ -175,7 +175,7 @@ int PALEditor::runLoop()
         PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 0);
         PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 1);
         _mainWindow->getScene()->drawSprites();
-        // _mainWindow->getScene()->updatePartyGestures(false);
+        _mainWindow->getScene()->updatePartyGestures(false);
         _mainWindow->getPalRenderer()->updateScreen(nullptr);
 
         if (_globals->getEnteringScene()) {
