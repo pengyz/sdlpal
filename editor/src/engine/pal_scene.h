@@ -32,6 +32,12 @@ public:
     void updatePartyGestures(bool fWalking);
     bool checkObstacle(PAL_POS pos, bool fCheckEventObjects, WORD wSelfObject);
     void drawSprites();
+    /**
+     * @brief enter object in scene
+     *
+     * @param pObject
+     */
+    void centerObject(WORD wEventObjectID, engine::LPEVENTOBJECT pObject);
 
 private:
     void addSpriteToDraw(LPCBITMAPRLE lpSpriteFrame, int x, int y, int iLayer);

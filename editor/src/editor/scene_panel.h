@@ -9,6 +9,7 @@
 
 namespace engine {
 class PalResources;
+class PalScene;
 }
 
 namespace editor {
@@ -22,7 +23,8 @@ struct ScenePanelModel {
 class ScenePanel : public Window {
 
 public:
-    ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources, engine::PalRenderer* renderer);
+    ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals,
+        engine::PalResources* resources, engine::PalRenderer* renderer, engine::PalScene* scene);
     ~ScenePanel();
     /**
      * @brief 渲染逻辑
@@ -44,6 +46,7 @@ private:
     engine::PalGlobals* _globals = nullptr;
     engine::PalResources* _resources = nullptr;
     engine::PalRenderer* _renderer = nullptr;
+    engine::PalScene* _scene = nullptr;
     SpritePanel* _spritePanel = nullptr;
 };
 } // namespace editor

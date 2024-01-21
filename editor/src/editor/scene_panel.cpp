@@ -4,6 +4,7 @@
 #include "engine/pal_global.h"
 #include "engine/pal_renderer.h"
 #include "engine/pal_resources.h"
+#include "engine/pal_scene.h"
 #include "global.h"
 #include "gui_convertor.h"
 #include "gui_template.h"
@@ -19,11 +20,12 @@
 
 namespace editor {
 
-ScenePanel::ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources, engine::PalRenderer* renderer)
+ScenePanel::ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources, engine::PalRenderer* renderer, engine::PalScene* scene)
     : Window(width, height, title, visible)
     , _globals(globals)
     , _resources(resources)
     , _renderer(renderer)
+    , _scene(scene)
 {
 }
 
@@ -37,8 +39,10 @@ ScenePanel::~ScenePanel()
 
 void showSceneList(ScenePanelModel& model, engine::PalGlobals* globals, engine::PalResources* resources)
 {
-    char preview_value[512] = { 0 };
+    char preview_value[128] = { 0 };
     sprintf(preview_value, "%.3d mapNum: %d", model.item_current_idx, globals->getGameData().rgScene[model.item_current_idx].wMapNum);
+    ImGui::Text("地图选择:");
+    ImGui::SameLine();
     if (ImGui::BeginCombo("##scenes", preview_value, ImGuiComboFlags_HeightLarge | ImGuiComboFlags_WidthFitPreview)) {
         for (int n = 0; n < IM_ARRAYSIZE(globals->getGameData().rgScene); n++) {
             engine::LPSCENE pScene = &globals->getGameData().rgScene[n];
@@ -89,15 +93,15 @@ void ScenePanel::drawObjectPropertyTable(int n, WORD wEventObjectID, engine::LPE
         ImGui::TableSetupColumn("属性");
         ImGui::TableSetupColumn("值");
         ImGui::TableHeadersRow();
-        addObjectPropertyEditable("vanishTime", pObject->sVanishTime);
-        addObjectPropertyEditableNoCheck("x", pObject->x);
-        addObjectPropertyEditableNoCheck("y", pObject->y);
-        addObjectPropertyEditable("layer", pObject->sLayer);
-        addObjectPropertyReadonly("triggerScript", pObject->wTriggerScript);
-        addObjectPropertyEditable("autoScript", pObject->wAutoScript);
-        addObjectPropertySelectable(obj_state_convertor, "state", pObject->sState);
-        addObjectPropertySelectable(obj_trigger_mode_convertor, "triggerMode", pObject->wTriggerMode);
-        addObjectPropertyReadonly("spriteNum", pObject->wSpriteNum, std::function<void(decltype(pObject->wSpriteNum))>([this, wEventObjectID, pObject](decltype(pObject->wSpriteNum) wScriptNum) {
+        addPropertyEditable("vanishTime", pObject->sVanishTime);
+        addPropertyEditableNoCheck("x", pObject->x);
+        addPropertyEditableNoCheck("y", pObject->y);
+        addPropertyEditable("layer", pObject->sLayer);
+        addPropertyReadonly("triggerScript", pObject->wTriggerScript);
+        addPropertyEditable("autoScript", pObject->wAutoScript);
+        addPropertySelectable(obj_state_convertor, "state", pObject->sState);
+        addPropertySelectable(obj_trigger_mode_convertor, "triggerMode", pObject->wTriggerMode);
+        addPropertyReadonly("spriteNum", pObject->wSpriteNum, std::function<void(decltype(pObject->wSpriteNum))>([this, wEventObjectID, pObject](decltype(pObject->wSpriteNum) wScriptNum) {
             // show button
             if (wScriptNum) {
                 ImGui::SameLine();
@@ -109,17 +113,17 @@ void ScenePanel::drawObjectPropertyTable(int n, WORD wEventObjectID, engine::LPE
                 }
             }
         }));
-        addObjectPropertyReadonly("spriteFrames", pObject->nSpriteFrames);
-        addObjectPropertySelectable(obj_direction_converter, "direction", pObject->wDirection);
-        addObjectPropertyEditable(
+        addPropertyReadonly("spriteFrames", pObject->nSpriteFrames);
+        addPropertySelectable(obj_direction_converter, "direction", pObject->wDirection);
+        addPropertyEditable(
             "currFrame", pObject->wCurrentFrameNum, nullptr, std::function<bool(WORD)>([pObject](WORD val) {
                 return val >= 0 && val < pObject->nSpriteFrames;
             }),
             "Err_ValueOutOfRange");
-        addObjectPropertyEditable("scriptIdleFrame", pObject->nScriptIdleFrame);
-        addObjectPropertyEditable("spritePtrOffset", pObject->wSpritePtrOffset);
-        addObjectPropertyEditable("spriteFramesAuto", pObject->nSpriteFramesAuto);
-        addObjectPropertyEditable("scriptIdleFrameCountAuto", pObject->wScriptIdleFrameCountAuto);
+        addPropertyEditable("scriptIdleFrame", pObject->nScriptIdleFrame);
+        addPropertyEditable("spritePtrOffset", pObject->wSpritePtrOffset);
+        addPropertyEditable("spriteFramesAuto", pObject->nSpriteFramesAuto);
+        addPropertyEditable("scriptIdleFrameCountAuto", pObject->wScriptIdleFrameCountAuto);
 
         // add error popups
         addErrorPopups("Err_ValueOutOfRange", []() {
@@ -127,8 +131,8 @@ void ScenePanel::drawObjectPropertyTable(int n, WORD wEventObjectID, engine::LPE
         });
 
         invokeErrorPopups();
-        ImGui::EndTable();
     }
+    ImGui::EndTable();
     // render sprite panel
     _spritePanel->render();
 }
@@ -142,8 +146,37 @@ void ScenePanel::render()
         showSceneList(model, _globals, _resources);
         // show scene details
         engine::SCENE* pScene = &_globals->getGameData().rgScene[model.item_current_idx];
-        ImGui::LabelText("##entryScript", "enterScript: %.4x", pScene->wScriptOnEnter);
-        ImGui::LabelText("##teleport", "teleportScript: %.4x", pScene->wScriptOnTeleport);
+        if (ImGui::CollapsingHeader("地图详情"), ImGuiTreeNodeFlags_DefaultOpen) {
+            if (ImGui::BeginTable("##mapDetails", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable)) {
+                ImGui::TableNextColumn();
+                ImGui::Text("viewport");
+                ImGui::TableNextColumn();
+                int vals[2] = { PAL_X(_globals->getViewport()), PAL_Y(_globals->getViewport()) };
+                if (ImGui::InputInt2("##viewport", vals)) {
+                    _globals->getViewport() = PAL_XY(vals[0], vals[1]);
+                }
+                addPropertyReadonly("enterScript", pScene->wScriptOnEnter, std::function<void(decltype(pScene->wScriptOnEnter))>([](decltype(pScene->wScriptOnEnter) entry) {
+                    if (entry) {
+                        ImGui::SameLine();
+                        if (ImGui::Button("查看##enter")) {
+                            // show script data
+                            printf("preview for script %d\n", entry);
+                        }
+                    }
+                }));
+                addPropertyReadonly("teleportScript", pScene->wScriptOnTeleport, std::function<void(decltype(pScene->wScriptOnTeleport))>([](decltype(pScene->wScriptOnTeleport) entry) {
+                    if (entry) {
+                        ImGui::SameLine();
+                        if (ImGui::Button("查看##teleport")) {
+                            // show script data
+                            printf("preview for script %d\n", entry);
+                        }
+                    }
+                }));
+            }
+            ImGui::EndTable();
+        }
+
         if (ImGui::CollapsingHeader("对象列表")) {
             if (ImGui::BeginListBox("##ObjectList", { -FLT_MIN, -FLT_MIN })) {
                 WORD beginObjectIndex = _globals->getGameData().rgScene[_globals->getNumScene() - 1].wEventObjectIndex + 1;
@@ -158,6 +191,7 @@ void ScenePanel::render()
                     if (model.object_selected_idx == n) {
                         flags |= ImGuiTreeNodeFlags_Selected;
                     }
+                    ImGui::Indent();
                     if (ImGui::CollapsingHeader(buf, flags)) {
                         if (model.object_selected_idx != n) {
                             if (model.object_selected_idx != -1) {
@@ -171,8 +205,15 @@ void ScenePanel::render()
                         if (model.object_selected_idx == n) {
                             // draw object property table
                             drawObjectPropertyTable(n, wEventObjectID, pObject);
+                            // add button to focus object
+                            char buf[128];
+                            sprintf(buf, "聚焦##%d", wEventObjectID);
+                            if (ImGui::Button(buf, { 100.f, 0.f })) {
+                                _scene->centerObject(wEventObjectID, pObject);
+                            }
                         }
                     }
+                    ImGui::Unindent();
                 }
                 ImGui::EndListBox();
             }

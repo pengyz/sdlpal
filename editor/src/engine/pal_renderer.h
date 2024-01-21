@@ -2,10 +2,8 @@
 #include "3rd/SDL/include/SDL_render.h"
 #include "3rd/SDL/include/SDL_surface.h"
 #include "SDL.h"
+#include "common.h"
 #include <array>
-
-#define SCENE_WIDTH 320
-#define SCENE_HEIGHT 200
 
 namespace render {
 class RenderBackend;

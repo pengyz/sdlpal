@@ -133,43 +133,43 @@ int PALEditor::runLoop()
         }
 
         // set player party position
-        {
-            int mapX = 23;
-            int mapY = 50;
-            int mapZ = 12;
-            int xOffset, yOffset, x, y;
+        // {
+        //     int mapX = 23;
+        //     int mapY = 50;
+        //     int mapZ = 12;
+        //     int xOffset, yOffset, x, y;
 
-            xOffset = ((_globals->getPartyDirection() == kDirWest || _globals->getPartyDirection() == kDirSouth)
-                    ? 16
-                    : -16);
-            yOffset = ((_globals->getPartyDirection() == kDirWest || _globals->getPartyDirection() == kDirNorth)
-                    ? 8
-                    : -8);
+        //     xOffset = ((_globals->getPartyDirection() == kDirWest || _globals->getPartyDirection() == kDirSouth)
+        //             ? 16
+        //             : -16);
+        //     yOffset = ((_globals->getPartyDirection() == kDirWest || _globals->getPartyDirection() == kDirNorth)
+        //             ? 8
+        //             : -8);
 
-            x = mapX * 32 + mapZ * 16;
-            y = mapY * 16 + mapZ * 8;
+        //     x = mapX * 32 + mapZ * 16;
+        //     y = mapY * 16 + mapZ * 8;
 
-            x -= PAL_X(_globals->getPartyoffset());
-            y -= PAL_Y(_globals->getPartyoffset());
+        //     x -= PAL_X(_globals->getPartyoffset());
+        //     y -= PAL_Y(_globals->getPartyoffset());
 
-            _globals->getViewport() = PAL_XY(x, y);
+        //     _globals->getViewport() = PAL_XY(x, y);
 
-            x = PAL_X(_globals->getPartyoffset());
-            y = PAL_Y(_globals->getPartyoffset());
+        //     x = PAL_X(_globals->getPartyoffset());
+        //     y = PAL_Y(_globals->getPartyoffset());
 
-            for (int i = 0; i < MAX_PLAYABLE_PLAYER_ROLES; i++) {
-                _globals->getrgParty()[i].x = x;
-                _globals->getrgParty()[i].y = y;
-                _globals->getrgTrail()[i].x = x + PAL_X(_globals->getViewport());
-                _globals->getrgTrail()[i].y = y + PAL_Y(_globals->getViewport());
-                _globals->getrgTrail()[i].wDirection = _globals->getPartyDirection();
+        //     for (int i = 0; i < MAX_PLAYABLE_PLAYER_ROLES; i++) {
+        //         _globals->getrgParty()[i].x = x;
+        //         _globals->getrgParty()[i].y = y;
+        //         _globals->getrgTrail()[i].x = x + PAL_X(_globals->getViewport());
+        //         _globals->getrgTrail()[i].y = y + PAL_Y(_globals->getViewport());
+        //         _globals->getrgTrail()[i].wDirection = _globals->getPartyDirection();
 
-                x += xOffset;
-                y += yOffset;
-            }
-        }
+        //         x += xOffset;
+        //         y += yOffset;
+        //     }
+        // }
 
-        _globals->getViewport() = PAL_XY(592, 690);
+        // _globals->getViewport() = PAL_XY(592, 690);
         rect.x = PAL_X(_globals->getViewport());
         rect.y = PAL_Y(_globals->getViewport());
         // do not enter scene, just load this point
@@ -180,7 +180,7 @@ int PALEditor::runLoop()
         PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 0);
         PAL_MapBlitToSurface(_resources->getCurrentMap(), pScreen, &rect, 1);
         _mainWindow->getScene()->drawSprites();
-        _mainWindow->getScene()->updatePartyGestures(false);
+        _mainWindow->getScene()->updateParty(_mainWindow->getInput()->getInputState());
         _mainWindow->getPalRenderer()->updateScreen(nullptr);
 
         if (_globals->getEnteringScene()) {

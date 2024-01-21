@@ -2,6 +2,7 @@
 #include "global.h"
 #include "pal_input.h"
 #include "pal_resources.h"
+#include "common.h"
 #include "res.h"
 
 namespace engine {
@@ -28,33 +29,33 @@ void PalScene::updateParty(PALINPUTSTATE* pInputState)
         //
         // Check for obstacles on the destination location
         //
-        if (!checkObstacle(PAL_XY(xTarget, yTarget), TRUE, 0)) {
-            //
-            // Player will actually be moved. Store trail.
-            //
-            for (i = 3; i >= 0; i--) {
-                _globals->getrgTrail()[i + 1] = _globals->getrgTrail()[i];
-            }
-
-            _globals->getrgTrail()[0].wDirection = pInputState->dir;
-            _globals->getrgTrail()[0].x = xSource;
-            _globals->getrgTrail()[0].y = ySource;
-
-            //
-            // Move the viewport
-            //
-            _globals->getViewport() = PAL_XY(PAL_X(_globals->getViewport()) + xOffset, PAL_Y(_globals->getViewport()) + yOffset);
-
-            //
-            // Update gestures
-            //
-            updatePartyGestures(true);
-
-            return; // don't go further
+        // if (!checkObstacle(PAL_XY(xTarget, yTarget), TRUE, 0)) {
+        //
+        // Player will actually be moved. Store trail.
+        //
+        for (i = 3; i >= 0; i--) {
+            _globals->getrgTrail()[i + 1] = _globals->getrgTrail()[i];
         }
+
+        _globals->getrgTrail()[0].wDirection = pInputState->dir;
+        _globals->getrgTrail()[0].x = xSource;
+        _globals->getrgTrail()[0].y = ySource;
+
+        //
+        // Move the viewport
+        //
+        _globals->getViewport() = PAL_XY(PAL_X(_globals->getViewport()) + xOffset, PAL_Y(_globals->getViewport()) + yOffset);
+
+        //
+        // Update gestures
+        //
+        // updatePartyGestures(true);
+
+        return; // don't go further
+        // }
     }
 
-    updatePartyGestures(false);
+    // updatePartyGestures(false);
 }
 
 void PalScene::updatePartyGestures(bool fWalking)
@@ -372,6 +373,43 @@ void PalScene::drawSprites()
 
         PAL_RLEBlitToSurface(p->lpSpriteFrame, _renderer->getScreen(), PAL_XY(x, y));
     }
+}
+
+void PalScene::centerObject(WORD wEventObjectID, engine::LPEVENTOBJECT pObject)
+{
+    LPCBITMAPRLE lpFrame = nullptr;
+    auto lpSprite = _resources->getEventObjectSprite(wEventObjectID);
+    if (lpSprite) {
+        auto iFrame = pObject->wCurrentFrameNum;
+        if (pObject->nSpriteFrames == 3) {
+            //
+            // walking character
+            //
+            if (iFrame == 2) {
+                iFrame = 0;
+            }
+
+            if (iFrame == 3) {
+                iFrame = 2;
+            }
+        }
+
+        lpFrame = _resources->spriteGetFrame(lpSprite,
+            pObject->wDirection * pObject->nSpriteFrames + iFrame);
+    }
+    WORD x = pObject->x;
+    WORD y = pObject->y;
+    if (lpFrame) {
+        // adjust xy for frame
+        x -= PAL_RLEGetWidth(lpFrame) / 2;
+        y += pObject->sLayer * 8 + 9;
+        y -= PAL_RLEGetHeight(lpFrame) - pObject->sLayer * 8 + 2;
+    }
+
+    x -= SCENE_WIDTH / 2;
+    y -= SCENE_HEIGHT / 2;
+
+    _globals->getViewport() = PAL_XY(x, y);
 }
 
 void PalScene::addSpriteToDraw(LPCBITMAPRLE lpSpriteFrame, int x, int y, int iLayer)

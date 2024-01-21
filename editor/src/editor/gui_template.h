@@ -8,7 +8,7 @@
 namespace editor {
 
 template <typename T, typename FN_getConvertTable>
-void __addObjectPropertyEditable(FN_getConvertTable convertTable, const char* propName, T& value, std::function<void()> value_changed = nullptr, std::function<bool(T)> cb = nullptr, const char* errorPopup = nullptr)
+void __addPropertyEditable(FN_getConvertTable convertTable, const char* propName, T& value, std::function<void()> value_changed = nullptr, std::function<bool(T)> cb = nullptr, const char* errorPopup = nullptr)
 {
     std::pair<const char**, size_t> p = std::make_pair(nullptr, 0);
     if (convertTable) {
@@ -67,7 +67,7 @@ void __addObjectPropertyEditable(FN_getConvertTable convertTable, const char* pr
 }
 
 template <typename T>
-void addObjectPropertyReadonly(const char* propName, T& value, std::function<void(T)> appendCb = nullptr)
+void addPropertyReadonly(const char* propName, T& value, std::function<void(T)> appendCb = nullptr)
 {
     ImGui::TableNextColumn();
     ImGui::Text("%s", propName);
@@ -79,21 +79,21 @@ void addObjectPropertyReadonly(const char* propName, T& value, std::function<voi
 }
 
 template <typename T>
-void addObjectPropertyEditable(const char* propName, T& value, std::function<void()> value_changed = nullptr, std::function<bool(T)> cb = nullptr, const char* errorPopup = nullptr)
+void addPropertyEditable(const char* propName, T& value, std::function<void()> value_changed = nullptr, std::function<bool(T)> cb = nullptr, const char* errorPopup = nullptr)
 {
-    __addObjectPropertyEditable<T, std::pair<const char**, size_t>()>(nullptr, propName, value, value_changed, cb, errorPopup);
+    __addPropertyEditable<T, std::pair<const char**, size_t>()>(nullptr, propName, value, value_changed, cb, errorPopup);
 }
 
 template <typename T>
-void addObjectPropertyEditableNoCheck(const char* propName, T& value, std::function<void()> value_changed = nullptr)
+void addPropertyEditableNoCheck(const char* propName, T& value, std::function<void()> value_changed = nullptr)
 {
-    __addObjectPropertyEditable<T, std::pair<const char**, size_t>()>(nullptr, propName, value, value_changed, std::function<bool(T)>(), nullptr);
+    __addPropertyEditable<T, std::pair<const char**, size_t>()>(nullptr, propName, value, value_changed, std::function<bool(T)>(), nullptr);
 }
 
 template <typename T, typename FN_getConvertTable>
-void addObjectPropertySelectable(FN_getConvertTable convertTable, const char* propName, T& value, std::function<void()> value_changed = nullptr)
+void addPropertySelectable(FN_getConvertTable convertTable, const char* propName, T& value, std::function<void()> value_changed = nullptr)
 {
-    __addObjectPropertyEditable<T, FN_getConvertTable>(convertTable, propName, value, value_changed, nullptr, nullptr);
+    __addPropertyEditable<T, FN_getConvertTable>(convertTable, propName, value, value_changed, nullptr, nullptr);
 }
 
 }

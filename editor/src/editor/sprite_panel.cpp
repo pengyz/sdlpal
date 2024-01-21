@@ -41,10 +41,10 @@ void SpritePanel::render()
                 ImGui::TableSetupColumn("值");
                 ImGui::TableHeadersRow();
                 // show sprite related properties
-                addObjectPropertyReadonly("spriteNum", _pObject->wSpriteNum);
-                addObjectPropertyReadonly("spriteFrames", _pObject->nSpriteFrames);
-                addObjectPropertySelectable(obj_direction_converter, "direction", _pObject->wDirection, value_changed);
-                addObjectPropertyEditable(
+                addPropertyReadonly("spriteNum", _pObject->wSpriteNum);
+                addPropertyReadonly("spriteFrames", _pObject->nSpriteFrames);
+                addPropertySelectable(obj_direction_converter, "direction", _pObject->wDirection, value_changed);
+                addPropertyEditable(
                     "currFrame", _pObject->wCurrentFrameNum, nullptr, std::function<bool(WORD)>([this](WORD val) {
                         return val >= 0 && val < _pObject->nSpriteFrames;
                     }));
