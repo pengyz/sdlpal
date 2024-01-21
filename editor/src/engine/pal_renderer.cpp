@@ -25,9 +25,10 @@ PalRenderer::~PalRenderer()
         delete _renderBackend;
         _renderBackend = nullptr;
     }
+    deinit();
 }
 
-bool PalRenderer::init(SDL_Window* window, int width, int height)
+bool PalRenderer::init(int width, int height)
 {
     // create surfaces
     _screen = SDL_CreateRGBSurface(SDL_SWSURFACE, SCENE_WIDTH, SCENE_HEIGHT, 8, 0, 0, 0, 0);
@@ -76,10 +77,7 @@ void PalRenderer::deinit()
         SDL_DestroyTexture(_texture);
     }
     _texture = NULL;
-
-    if (_renderer) {
-        SDL_DestroyRenderer(_renderer);
-    }
+    // do not free _renderer, it's managed outside
     _renderer = NULL;
 
     // if (_window)

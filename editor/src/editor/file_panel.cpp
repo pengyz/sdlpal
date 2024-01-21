@@ -1,6 +1,5 @@
 #include "file_panel.h"
-#include "engine/pal_global.h"
-#include "engine/pal_resources.h"
+#include "engine/pal_engine.h"
 #include "global.h"
 #include "imgui.h"
 #include "util.h"
@@ -10,10 +9,9 @@
 
 namespace editor {
 
-FilePanel::FilePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources)
+FilePanel::FilePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine)
     : Window(width, height, title, visible)
-    , _globals(globals)
-    , _resources(resources)
+    , _engine(engine)
 {
 }
 

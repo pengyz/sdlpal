@@ -1,10 +1,7 @@
 #include "scene_panel.h"
 #include "3rd/SDL/include/SDL_render.h"
 #include "3rd/SDL/include/SDL_surface.h"
-#include "engine/pal_global.h"
-#include "engine/pal_renderer.h"
-#include "engine/pal_resources.h"
-#include "engine/pal_scene.h"
+#include "engine/pal_engine.h"
 #include "global.h"
 #include "gui_convertor.h"
 #include "gui_template.h"
@@ -20,12 +17,9 @@
 
 namespace editor {
 
-ScenePanel::ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources, engine::PalRenderer* renderer, engine::PalScene* scene)
+ScenePanel::ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine)
     : Window(width, height, title, visible)
-    , _globals(globals)
-    , _resources(resources)
-    , _renderer(renderer)
-    , _scene(scene)
+    , _engine(engine)
 {
 }
 
@@ -143,17 +137,30 @@ void ScenePanel::render()
     if (ImGui::Begin(_title.c_str(), nullptr)) {
         ImGui::LabelText("##title", "%s", "场景列表");
         // show scene list
-        showSceneList(model, _globals, _resources);
+        showSceneList(model, _engine->getGlobals(), _engine->getResources());
+        ImGui::SameLine();
+        ImGui::Dummy({ 5, 0 });
+        ImGui::SameLine();
+        ImGui::BeginGroup();
+        bool paint_map = false;
+        bool paint_objects = false;
+        ImGui::Checkbox("绘制地图", &paint_map);
+        ImGui::SameLine();
+        ImGui::Dummy({ 5, 0 });
+        ImGui::SameLine();
+        ImGui::Checkbox("绘制对象", &paint_objects);
+        ImGui::EndGroup();
         // show scene details
-        engine::SCENE* pScene = &_globals->getGameData().rgScene[model.item_current_idx];
+        engine::SCENE* pScene = &_engine->getGlobals()->getGameData().rgScene[model.item_current_idx];
         if (ImGui::CollapsingHeader("地图详情"), ImGuiTreeNodeFlags_DefaultOpen) {
             if (ImGui::BeginTable("##mapDetails", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable)) {
+                // viewport
                 ImGui::TableNextColumn();
                 ImGui::Text("viewport");
                 ImGui::TableNextColumn();
-                int vals[2] = { PAL_X(_globals->getViewport()), PAL_Y(_globals->getViewport()) };
+                int vals[2] = { PAL_X(_engine->getGlobals()->getViewport()), PAL_Y(_engine->getGlobals()->getViewport()) };
                 if (ImGui::InputInt2("##viewport", vals)) {
-                    _globals->getViewport() = PAL_XY(vals[0], vals[1]);
+                    _engine->getGlobals()->getViewport() = PAL_XY(vals[0], vals[1]);
                 }
                 addPropertyReadonly("enterScript", pScene->wScriptOnEnter, std::function<void(decltype(pScene->wScriptOnEnter))>([](decltype(pScene->wScriptOnEnter) entry) {
                     if (entry) {
@@ -179,10 +186,10 @@ void ScenePanel::render()
 
         if (ImGui::CollapsingHeader("对象列表")) {
             if (ImGui::BeginListBox("##ObjectList", { -FLT_MIN, -FLT_MIN })) {
-                WORD beginObjectIndex = _globals->getGameData().rgScene[_globals->getNumScene() - 1].wEventObjectIndex + 1;
-                WORD endObjectIndex = _globals->getGameData().rgScene[_globals->getNumScene()].wEventObjectIndex;
+                WORD beginObjectIndex = _engine->getGlobals()->getGameData().rgScene[_engine->getGlobals()->getNumScene() - 1].wEventObjectIndex + 1;
+                WORD endObjectIndex = _engine->getGlobals()->getGameData().rgScene[_engine->getGlobals()->getNumScene()].wEventObjectIndex;
                 for (WORD wEventObjectID = beginObjectIndex; wEventObjectID <= endObjectIndex; wEventObjectID++) {
-                    engine::LPEVENTOBJECT pObject = &_globals->getGameData().lprgEventObject[wEventObjectID - 1];
+                    engine::LPEVENTOBJECT pObject = &_engine->getGlobals()->getGameData().lprgEventObject[wEventObjectID - 1];
                     WORD n = wEventObjectID - beginObjectIndex;
                     const bool is_selected = (model.object_selected_idx == n);
                     char buf[128];
@@ -209,22 +216,22 @@ void ScenePanel::render()
                             char buf[128];
                             sprintf(buf, "聚焦##%d", wEventObjectID);
                             if (ImGui::Button(buf, { 100.f, 0.f })) {
-                                _scene->centerObject(wEventObjectID, pObject);
+                                _engine->getScene()->centerObject(wEventObjectID, pObject);
                             }
                         }
                     }
                     ImGui::Unindent();
                 }
-                ImGui::EndListBox();
             }
+            ImGui::EndListBox();
         }
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 bool ScenePanel::init()
 {
-    _spritePanel = new SpritePanel(800, 600, "SpriteViewer", false, _globals, _resources, _renderer);
+    _spritePanel = new SpritePanel(800, 600, "SpriteViewer", false, _engine);
     return true;
 }
 

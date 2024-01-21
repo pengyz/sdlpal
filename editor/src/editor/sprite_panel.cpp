@@ -1,8 +1,6 @@
 #include "sprite_panel.h"
 #include "editor/gui_convertor.h"
-#include "engine/pal_global.h"
-#include "engine/pal_renderer.h"
-#include "engine/pal_resources.h"
+#include "engine/pal_engine.h"
 #include "global.h"
 #include "gui_template.h"
 #include "imgui.h"
@@ -14,11 +12,9 @@
 
 namespace editor {
 
-SpritePanel::SpritePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources, engine::PalRenderer* renderer)
+SpritePanel::SpritePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine)
     : Window(width, height, title, visible)
-    , _globals(globals)
-    , _resources(resources)
-    , _renderer(renderer)
+    , _engine(engine)
 {
 }
 
@@ -235,7 +231,7 @@ void SpritePanel::updateSpriteTexture(WORD eventObjectId, engine::LPEVENTOBJECT 
         }
         model.spriteObjectId = eventObjectId;
     }
-    LPSPRITE lpSprite = _resources->getEventObjectSprite(eventObjectId);
+    LPSPRITE lpSprite = _engine->getResources()->getEventObjectSprite(eventObjectId);
     if (!lpSprite)
         return;
     LPCBITMAPRLE lpFrame = PAL_SpriteGetFrame(lpSprite,
@@ -252,7 +248,7 @@ void SpritePanel::updateSpriteTexture(WORD eventObjectId, engine::LPEVENTOBJECT 
     if (!model.texture) {
         model.texture_size.x = (float)rle_width * model.texture_scale;
         model.texture_size.y = (float)rle_height * model.texture_scale;
-        model.texture = SDL_CreateTexture(_renderer->getRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+        model.texture = SDL_CreateTexture(_engine->getRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
             model.texture_size.x, model.texture_size.y);
     }
     SDL_Surface* surface = NULL;

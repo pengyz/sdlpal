@@ -3,15 +3,14 @@
 #include "window.h"
 
 namespace engine {
-  class PalGlobals;
-  class PalResources;
+  class PalEngine;
 }
 
 namespace editor {
 
 class FilePanel : public Window {
 public:
-    FilePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources);
+    FilePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
     ~FilePanel();
     /**
      * @brief 渲染逻辑
@@ -22,7 +21,6 @@ public:
     virtual bool init() override;
 
 private:
-    engine::PalGlobals* _globals = nullptr;
-    engine::PalResources* _resources = nullptr;
+    engine::PalEngine* _engine = nullptr;
 };
 } // namespace editor

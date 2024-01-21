@@ -5,9 +5,7 @@
 #include "window.h"
 
 namespace engine {
-class PalGlobals;
-class PalResources;
-class PalRenderer;
+class PalEngine;
 }
 
 namespace editor {
@@ -23,7 +21,7 @@ struct SpritePanelModel {
 
 class SpritePanel : public Window {
 public:
-    SpritePanel(int width, int height, const std::string& title, bool visible, engine::PalGlobals* globals, engine::PalResources* resources, engine::PalRenderer* renderer);
+    SpritePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
     ~SpritePanel();
     /**
      * @brief 渲染逻辑
@@ -46,9 +44,7 @@ private:
     void updateSpriteTexture(WORD eventObjectId, engine::LPEVENTOBJECT pObject);
 
 private:
-    engine::PalGlobals* _globals = nullptr;
-    engine::PalResources* _resources = nullptr;
-    engine::PalRenderer* _renderer = nullptr;
+    engine::PalEngine* _engine = nullptr;
     SpritePanelModel model;
     engine::LPEVENTOBJECT _pObject = nullptr;
 };

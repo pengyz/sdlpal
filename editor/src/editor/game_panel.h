@@ -3,15 +3,14 @@
 #include "window.h"
 
 namespace engine {
-class PalRenderer;
-class PalInput;
+class PalEngine;
 }
 
 namespace editor {
 
 class GamePanel : public Window {
 public:
-    GamePanel(int width, int height, const std::string& title, bool visible, engine::PalRenderer* renderer, engine::PalInput* input);
+    GamePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
     ~GamePanel();
     /**
      * @brief 渲染逻辑
@@ -22,8 +21,6 @@ public:
     virtual bool init() override;
 
 private:
-    engine::PalRenderer* _renderer = nullptr;
-    engine::PalInput* _input = nullptr;
-    int w = 0, h = 0;
+    engine::PalEngine* _engine = nullptr;
 };
 } // namespace editor

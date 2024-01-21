@@ -10,11 +10,6 @@ RenderBackend::RenderBackend(SDL_Renderer* renderer, SDL_Surface* surface, bool 
 }
 RenderBackend::~RenderBackend()
 {
-
-    if (_texture) {
-        SDL_DestroyTexture(_texture);
-        _texture = nullptr;
-    }
 }
 
 SDL_Renderer* RenderBackend::renderer() const { return _renderer; }

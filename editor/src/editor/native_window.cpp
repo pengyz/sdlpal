@@ -3,6 +3,7 @@
 #include "SDL_error.h"
 #include "SDL_render.h"
 #include "common.h"
+#include "engine/pal_engine.h"
 #include "engine/pal_input.h"
 #include "engine/pal_renderer.h"
 #include "engine/pal_scene.h"
@@ -25,48 +26,39 @@ extern void (*g_outside_event_handler)(const SDL_Event*);
 
 namespace editor {
 
-NativeWindow::NativeWindow(engine::PalGlobals* globals, engine::PalResources* resources, int width, int height, const std::string& title)
+NativeWindow::NativeWindow(engine::PalEngine* engine, int width, int height, const std::string& title)
     : Window(width, height, title)
-    , _globals(globals)
-    , _resources(resources)
-    , _palRenderer(nullptr)
-    , _input(nullptr)
+    , _engine(engine)
 {
-}
-
-bool NativeWindow::init()
-{
-    bool bOk = true;
     // use my window
     _window = SDL_CreateWindow(_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _width,
         _height, PAL_VIDEO_INIT_FLAGS);
     if (!_window) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "SDL_CreateWindow Failed: %s", SDL_GetError());
-        return false;
+        assert(false && "SDL_CreateWindow failed !");
     }
-    // gpRenderer = _renderer;
+    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    engine->setRenderer(_renderer);
+}
+
+bool NativeWindow::init()
+{
+    // assert(_engine != nullptr && "call bindEngine first.");
+    bool bOk = true;
+
     SDL_AddEventWatch(&NativeWindow::resizingEventWatcher, this);
     // 创建逻辑texture
-    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    // initialize gameRender
-    _palRenderer = new engine::PalRenderer(_renderer);
-    if (!_palRenderer->init(_window, SCENE_WIDTH, SCENE_HEIGHT)) {
-        UTIL_LogOutput(LOGLEVEL_ERROR, "init gameRenderer failed !");
-        return false;
-    }
-    _input = new engine::PalInput(_palRenderer);
-    _scene = new engine::PalScene(_globals, _resources, _palRenderer);
-    bOk = _initImGui(_renderer);
+    bOk = _initImGui(_engine->getRenderer());
     if (!bOk) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "initImGui failed !");
         return false;
     }
 
     // 创建窗口
-    createImGuiPanel<FilePanel>(SubPanels::file, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "file", _model._file_panel, _globals, _resources);
-    createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _model._scene_panel, _globals, _resources, _palRenderer, _scene);
-    createImGuiPanel<ScriptPanel>(SubPanels::script, 800, 600, "script", _model._script_panel, _globals, _resources);
-    createImGuiPanel<GamePanel>(SubPanels::game, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "game", true, _palRenderer, _input);
+    createImGuiPanel<FilePanel>(SubPanels::file, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "file", _model._file_panel, _engine);
+    createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _model._scene_panel, _engine);
+    createImGuiPanel<ScriptPanel>(SubPanels::script, 800, 600, "script", _model._script_panel, _engine);
+    createImGuiPanel<GamePanel>(SubPanels::game, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "game", true, _engine);
     return true;
 }
 
@@ -200,10 +192,9 @@ NativeWindow::~NativeWindow()
         delete pair.second;
     }
     _imgui_panels.clear();
-    ImGui::DestroyContext();
-
     ImGui_ImplSDLRenderer2_Shutdown();
     ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
     if (_renderer) {
         SDL_DestroyRenderer(_renderer);
@@ -227,12 +218,5 @@ int NativeWindow::resizingEventWatcher(void* data, SDL_Event* event)
     }
     return 0;
 }
-
-// void NativeWindow::present() { _gameRender->present(); }
-
-// void NativeWindow::erase(int r, int g, int b, int a)
-// {
-//     _gameRender->erase(r, g, b, a);
-// }
 
 } // namespace editor

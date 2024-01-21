@@ -5,9 +5,7 @@
 #include <SDL.h>
 
 namespace engine {
-class PalGlobals;
-class PalResources;
-class PalScene;
+class PalEngine;
 }
 
 namespace editor {
@@ -16,6 +14,7 @@ class PALEditor {
 public:
     PALEditor();
     ~PALEditor();
+
     bool init();
 
     /**
@@ -31,12 +30,9 @@ public:
      */
     void deinit();
 
-private:
-    bool initGameEngine();
 
 private:
     editor::NativeWindow* _mainWindow = nullptr; // main window
-    engine::PalGlobals* _globals = nullptr; // global variables
-    engine::PalResources* _resources = nullptr; // game resources
+    engine::PalEngine* _engine = nullptr;
 };
 }

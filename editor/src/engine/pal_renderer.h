@@ -24,13 +24,12 @@ public:
     /**
      * @brief 初始化
      *
-     * @param window
      * @param widht
      * @param height
      * @return true
      * @return false
      */
-    bool init(SDL_Window* window, int widht, int height);
+    bool init(int widht, int height);
 
     /**
      * @brief deinitialize

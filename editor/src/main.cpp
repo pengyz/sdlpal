@@ -36,8 +36,6 @@ VOID PAL_Shutdown(
 }
 #endif
 
-
-
 int main(int argc, char** argv)
 {
     editor::PALEditor editor;
