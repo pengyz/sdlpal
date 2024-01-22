@@ -26,6 +26,8 @@ public:
     editor::NativeWindow* createWindow(int width, int height, const std::string& title);
     void setRenderer(SDL_Renderer* renderer);
 
+    int runLoop();
+
     // getters
     PalGlobals* getGlobals() { return _globals; }
     PalResources* getResources() { return _resources; }
@@ -33,6 +35,9 @@ public:
     PalScene* getScene() { return _scene; }
     PalInput* getInput() { return _input; }
     SDL_Renderer* getRenderer() { return _renderer; }
+
+    bool& getDrawSprite() { return _drawSprite; }
+    bool& getDrawTileMap() { return _drawTileMap; }
 
 private:
     PalGlobals* _globals = nullptr;
@@ -43,5 +48,7 @@ private:
     editor::NativeWindow* _mainWindow = nullptr;
 
     SDL_Renderer* _renderer = nullptr;
+    bool _drawSprite = true;
+    bool _drawTileMap = true;
 };
 }

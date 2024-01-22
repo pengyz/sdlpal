@@ -142,13 +142,11 @@ void ScenePanel::render()
         ImGui::Dummy({ 5, 0 });
         ImGui::SameLine();
         ImGui::BeginGroup();
-        bool paint_map = false;
-        bool paint_objects = false;
-        ImGui::Checkbox("绘制地图", &paint_map);
+        ImGui::Checkbox("绘制地图", &_engine->getDrawTileMap());
         ImGui::SameLine();
         ImGui::Dummy({ 5, 0 });
         ImGui::SameLine();
-        ImGui::Checkbox("绘制对象", &paint_objects);
+        ImGui::Checkbox("绘制对象", &_engine->getDrawSprite());
         ImGui::EndGroup();
         // show scene details
         engine::SCENE* pScene = &_engine->getGlobals()->getGameData().rgScene[model.item_current_idx];
