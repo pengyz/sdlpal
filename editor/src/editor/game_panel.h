@@ -10,7 +10,7 @@ namespace editor {
 
 class GamePanel : public Window {
 public:
-    GamePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
+    GamePanel(Window* parent, int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
     ~GamePanel();
     /**
      * @brief 渲染逻辑

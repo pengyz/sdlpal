@@ -21,7 +21,7 @@ struct SpritePanelModel {
 
 class SpritePanel : public Window {
 public:
-    SpritePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
+    SpritePanel(Window* parent, int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
     ~SpritePanel();
     /**
      * @brief 渲染逻辑

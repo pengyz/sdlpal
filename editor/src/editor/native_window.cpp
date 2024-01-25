@@ -27,7 +27,7 @@ extern void (*g_outside_event_handler)(const SDL_Event*);
 namespace editor {
 
 NativeWindow::NativeWindow(engine::PalEngine* engine, int width, int height, const std::string& title)
-    : Window(width, height, title)
+    : Window(nullptr, width, height, title)
     , _engine(engine)
 {
     // use my window

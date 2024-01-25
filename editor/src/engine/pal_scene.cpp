@@ -1,16 +1,27 @@
 #include "pal_scene.h"
+#include "3rd/SDL/include/SDL_pixels.h"
+#include "3rd/SDL/include/SDL_surface.h"
+#include "common.h"
 #include "global.h"
 #include "pal_input.h"
 #include "pal_resources.h"
-#include "common.h"
+#include "palcommon.h"
+#include "palette.h"
 #include "res.h"
+#include <iostream>
+
+extern bool gpHighlightHoverSprites;
+extern int gpHoverPosX;
+extern int gpHoverPosY;
+extern int gpHighlightWidth;
+extern int gpHighlightPaletteIndex;
+int gpHoveredObject = -1;
 
 namespace engine {
 
 void PalScene::updateParty(PALINPUTSTATE* pInputState)
 {
     int xSource, ySource, xTarget, yTarget, xOffset, yOffset, i;
-
     //
     // Has user pressed one of the arrow keys?
     //
@@ -226,6 +237,151 @@ bool PalScene::checkObstacle(PAL_POS pos, bool fCheckEventObjects, WORD wSelfObj
     return FALSE;
 }
 
+bool spriteHitTest(LPCBITMAPRLE lpBitmapRLE, SDL_Surface* lpDstSurface, PAL_POS pos, int mouseX, int mouseY)
+{
+    UINT i, j, k, sx;
+    INT x, y;
+    UINT uiLen = 0;
+    UINT uiWidth = 0;
+    UINT uiHeight = 0;
+    UINT uiSrcX = 0;
+    BYTE T;
+    INT dx = PAL_X(pos);
+    INT dy = PAL_Y(pos);
+    //
+    // Check for NULL pointer.
+    //
+    if (lpBitmapRLE == NULL) {
+        return false;
+    }
+
+    //
+    // Skip the 0x00000002 in the file header.
+    //
+    if (lpBitmapRLE[0] == 0x02 && lpBitmapRLE[1] == 0x00 && lpBitmapRLE[2] == 0x00 && lpBitmapRLE[3] == 0x00) {
+        lpBitmapRLE += 4;
+    }
+
+    //
+    // Get the width and height of the bitmap.
+    //
+    uiWidth = lpBitmapRLE[0] | (lpBitmapRLE[1] << 8);
+    uiHeight = lpBitmapRLE[2] | (lpBitmapRLE[3] << 8);
+
+    //
+    // Check whether mouse is in bitmap rect.
+    //
+    int x1 = mouseX - dx;
+    int y1 = mouseY - dy;
+    if (x1 < 0 || x1 > uiWidth || y1 < 0 || y1 > uiHeight) {
+        return false;
+    }
+
+    //
+    // Calculate the total length of the bitmap.
+    // The bitmap is 8-bpp, each pixel will use 1 byte.
+    //
+    uiLen = uiWidth * uiHeight;
+
+    //
+    // Start decoding and blitting the bitmap.
+    //
+    lpBitmapRLE += 4;
+    for (i = 0; i < uiLen;) {
+        T = *lpBitmapRLE++;
+        if ((T & 0x80) && T <= 0x80 + uiWidth) {
+            i += T - 0x80;
+            uiSrcX += T - 0x80;
+            if (uiSrcX >= uiWidth) {
+                uiSrcX -= uiWidth;
+                dy++;
+            }
+        } else {
+            //
+            // Prepare coordinates.
+            //
+            j = 0;
+            sx = uiSrcX;
+            x = dx + uiSrcX;
+            y = dy;
+
+            //
+            // Skip the points which are out of the surface.
+            //
+            if (y < 0) {
+                j += -y * uiWidth;
+                y = 0;
+            } else if (y >= lpDstSurface->h) {
+                goto end; // No more pixels needed, break out
+            }
+
+            while (j < T) {
+                //
+                // Skip the points which are out of the surface.
+                //
+                if (x < 0) {
+                    j += -x;
+                    if (j >= T)
+                        break;
+                    sx += -x;
+                    x = 0;
+                } else if (x >= lpDstSurface->w) {
+                    j += uiWidth - sx;
+                    x -= sx;
+                    sx = 0;
+                    y++;
+                    if (y >= lpDstSurface->h) {
+                        goto end; // No more pixels needed, break out
+                    }
+                    continue;
+                }
+
+                //
+                // Put the pixels in row onto the surface
+                //
+                k = T - j;
+                if (lpDstSurface->w - x < k)
+                    k = lpDstSurface->w - x;
+                if (uiWidth - sx < k)
+                    k = uiWidth - sx;
+                sx += k;
+                if (y == mouseY) {
+                    for (; k != 0; k--) {
+                        if (x == mouseX) {
+                            SDL_Color* p = PAL_GetPalette(0, false);
+                            return p[lpBitmapRLE[j]].a == 0;
+                        }
+                        j++;
+                        x++;
+                    }
+                }
+
+                if (sx >= uiWidth) {
+                    sx -= uiWidth;
+                    x -= uiWidth;
+                    y++;
+                    if (y >= lpDstSurface->h) {
+                        goto end; // No more pixels needed, break out
+                    }
+                }
+            }
+            lpBitmapRLE += T;
+            i += T;
+            uiSrcX += T;
+            while (uiSrcX >= uiWidth) {
+                uiSrcX -= uiWidth;
+                dy++;
+            }
+        }
+    }
+
+end:
+    //
+    // Success
+    //
+    return false;
+}
+
 void PalScene::drawSprites()
 {
     int i, x, y, vy;
@@ -249,7 +405,7 @@ void PalScene::drawSprites()
         //
         // Add it to our array
         //
-        addSpriteToDraw(lpBitmap,
+        addSpriteToDraw(i, lpBitmap,
             _globals->getrgParty()[i].x - PAL_RLEGetWidth(lpBitmap) / 2,
             _globals->getrgParty()[i].y + _globals->getLayer() + 10,
             _globals->getLayer() + 6);
@@ -332,7 +488,7 @@ void PalScene::drawSprites()
         //
         // Add it into the array
         //
-        addSpriteToDraw(lpFrame, x, y, lpEvtObj->sLayer * 8 + 2);
+        addSpriteToDraw(i, lpFrame, x, y, lpEvtObj->sLayer * 8 + 2);
 
         //
         // Calculate covering map tiles
@@ -371,7 +527,24 @@ void PalScene::drawSprites()
         x = PAL_X(p->pos);
         y = PAL_Y(p->pos) - PAL_RLEGetHeight(p->lpSpriteFrame) - p->iLayer;
 
+        bool spriteHovered = false;
+        if (gpHighlightHoverSprites) {
+            if (spriteHitTest(p->lpSpriteFrame, _renderer->getScreen(), PAL_XY(x, y), gpHoverPosX, gpHoverPosY) ||
+             (gpHoveredObject != -1 && gpHoveredObject == p->i + 1)) {
+                // rect hit
+                spriteHovered = true;
+            }
+        }
+
+        if (spriteHovered) {
+            gpHighlightWidth = 1;
+            gpHighlightPaletteIndex = 255;
+            gpHoveredObject = p->i + 1;
+        }
         PAL_RLEBlitToSurface(p->lpSpriteFrame, _renderer->getScreen(), PAL_XY(x, y));
+        if (spriteHovered) {
+            gpHighlightWidth = 0;
+        }
     }
 }
 
@@ -412,10 +585,10 @@ void PalScene::centerObject(WORD wEventObjectID, engine::LPEVENTOBJECT pObject)
     _globals->getViewport() = PAL_XY(x, y);
 }
 
-void PalScene::addSpriteToDraw(LPCBITMAPRLE lpSpriteFrame, int x, int y, int iLayer)
+void PalScene::addSpriteToDraw(int i, LPCBITMAPRLE lpSpriteFrame, int x, int y, int iLayer)
 {
     assert(_nSpriteToDraw < MAX_SPRITE_TO_DRAW);
-
+    _rgSpriteToDraw[_nSpriteToDraw].i = i;
     _rgSpriteToDraw[_nSpriteToDraw].lpSpriteFrame = lpSpriteFrame;
     _rgSpriteToDraw[_nSpriteToDraw].pos = PAL_XY(x, y);
     _rgSpriteToDraw[_nSpriteToDraw].iLayer = iLayer;
@@ -492,7 +665,7 @@ void PalScene::calcCoverTiles(SPRITE_TO_DRAW* lpSpriteToDraw)
                         //
                         // This tile may cover the sprite
                         //
-                        addSpriteToDraw(lpTile,
+                        addSpriteToDraw(-1, lpTile,
                             dx * 32 + dh * 16 - 16 - PAL_X(gpGlobals->viewport),
                             dy * 16 + dh * 8 + 7 + l + iTileHeight * 8 - PAL_Y(gpGlobals->viewport),
                             iTileHeight * 8 + l);

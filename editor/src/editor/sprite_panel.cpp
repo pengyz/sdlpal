@@ -12,8 +12,8 @@
 
 namespace editor {
 
-SpritePanel::SpritePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine)
-    : Window(width, height, title, visible)
+SpritePanel::SpritePanel(Window* parent, int width, int height, const std::string& title, bool visible, engine::PalEngine* engine)
+    : Window(parent, width, height, title, visible)
     , _engine(engine)
 {
 }

@@ -9,6 +9,9 @@
 #include "script.h"
 #include "util.h"
 
+extern int gpHighlightWidth;
+extern int gpHighlightPaletteIndex;
+
 namespace engine {
 
 PalEngine::PalEngine()
@@ -84,8 +87,11 @@ int PalEngine::runLoop()
         SDL_Surface* pScreen = getPalRenderer()->getScreen();
         // PAL_MakeScene();
         if (_drawTileMap) {
+            gpHighlightWidth = 1;
+            gpHighlightPaletteIndex = 0;
             PAL_MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 0);
             PAL_MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 1);
+            gpHighlightWidth = 0;
         } else {
             // paint black bg
             SDL_FillRect(pScreen, nullptr, 0);

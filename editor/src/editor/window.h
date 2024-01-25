@@ -8,8 +8,9 @@ namespace editor {
 
 class Window {
 public:
-    Window(int width, int height, const std::string& title, bool visible = true)
-        : _width(width)
+    Window(Window* parent, int width, int height, const std::string& title, bool visible = true)
+        : _parent(parent)
+        , _width(width)
         , _height(height)
         , _title(title)
         , _visible(visible)
@@ -25,6 +26,7 @@ public:
 
 
 protected:
+    Window* _parent = nullptr;
     int _width = 0;
     int _height = 0;
     bool _visible = true;

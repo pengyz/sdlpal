@@ -40,11 +40,11 @@ bool PalRenderer::init(int width, int height)
     _renderBackend->Init();
     _renderBackend->Setup();
 
-    int render_w, render_h;
-    SDL_GetRendererOutputSize(_renderer, &render_w, &render_h);
+    // int render_w, render_h;
+    // SDL_GetRendererOutputSize(_renderer, &render_w, &render_h);
     //  if (!gConfig.fEnableGLSL)
     //      SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, gConfig.pszScaleQuality);
-    _texture = _renderBackend->CreateTexture(render_w, render_h);
+    _texture = _renderBackend->CreateTexture(width, height);
     //   if (!gConfig.fEnableGLSL)
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, nullptr);
 

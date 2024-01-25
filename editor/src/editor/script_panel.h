@@ -10,7 +10,7 @@ namespace editor {
 
 class ScriptPanel : public Window {
 public:
-    ScriptPanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
+    ScriptPanel(Window* parent, int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
     ~ScriptPanel();
     /**
      * @brief 渲染逻辑

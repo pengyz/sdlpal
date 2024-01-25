@@ -10,7 +10,7 @@ namespace editor {
 
 class FilePanel : public Window {
 public:
-    FilePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
+    FilePanel(Window* parent, int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
     ~FilePanel();
     /**
      * @brief 渲染逻辑

@@ -15,10 +15,12 @@
 #include <cfloat>
 #include <string>
 
+extern int gpHoveredObject;
+
 namespace editor {
 
-ScenePanel::ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine)
-    : Window(width, height, title, visible)
+ScenePanel::ScenePanel(Window* parent, int width, int height, const std::string& title, bool visible, engine::PalEngine* engine)
+    : Window(parent, width, height, title, visible)
     , _engine(engine)
 {
 }
@@ -64,7 +66,7 @@ void showSceneList(ScenePanelModel& model, engine::PalGlobals* globals, engine::
     }
 }
 
-void ScenePanel::drawObjectPropertyTable(int n, WORD wEventObjectID, engine::LPEVENTOBJECT pObject)
+void ScenePanel::drawObjectPropertyTable(WORD wEventObjectID, engine::LPEVENTOBJECT pObject)
 {
     // error popups
     std::map<std::string, std::function<void()>> _errorPopups;
@@ -82,7 +84,7 @@ void ScenePanel::drawObjectPropertyTable(int n, WORD wEventObjectID, engine::LPE
     };
 
     char buf[128];
-    sprintf(buf, "#objectPropertyTable%d", n);
+    sprintf(buf, "#objectPropertyTable%d", wEventObjectID);
     if (ImGui::BeginTable(buf, 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable)) {
         ImGui::TableSetupColumn("属性");
         ImGui::TableSetupColumn("值");
@@ -186,40 +188,53 @@ void ScenePanel::render()
             if (ImGui::BeginListBox("##ObjectList", { -FLT_MIN, -FLT_MIN })) {
                 WORD beginObjectIndex = _engine->getGlobals()->getGameData().rgScene[_engine->getGlobals()->getNumScene() - 1].wEventObjectIndex + 1;
                 WORD endObjectIndex = _engine->getGlobals()->getGameData().rgScene[_engine->getGlobals()->getNumScene()].wEventObjectIndex;
+                if (model.object_id_to_open != -1) {
+                    model.selected_object_id = model.object_id_to_open;
+                }
                 for (WORD wEventObjectID = beginObjectIndex; wEventObjectID <= endObjectIndex; wEventObjectID++) {
                     engine::LPEVENTOBJECT pObject = &_engine->getGlobals()->getGameData().lprgEventObject[wEventObjectID - 1];
-                    WORD n = wEventObjectID - beginObjectIndex;
-                    const bool is_selected = (model.object_selected_idx == n);
+                    // WORD n = wEventObjectID - beginObjectIndex;
                     char buf[128];
                     sprintf(buf, "objectId: %d", wEventObjectID);
                     int flags = 0;
-                    if (model.object_selected_idx == n) {
+
+                    if (model.object_id_to_open != -1) {
+                        ImGui::TreeNodeSetOpen(ImGui::GetID(buf), wEventObjectID == model.object_id_to_open);
+                        if (wEventObjectID == model.object_id_to_open) {
+                            ImGui::ScrollToItem();
+                        }
+                    }
+                    if (model.selected_object_id == wEventObjectID) {
                         flags |= ImGuiTreeNodeFlags_Selected;
                     }
                     ImGui::Indent();
                     if (ImGui::CollapsingHeader(buf, flags)) {
-                        if (model.object_selected_idx != n) {
-                            if (model.object_selected_idx != -1) {
+                        if (model.selected_object_id != wEventObjectID) {
+                            if (model.selected_object_id != -1) {
                                 // close previous open item
-                                sprintf(buf, "objectId: %d", model.object_selected_idx + beginObjectIndex);
+                                sprintf(buf, "objectId: %d", model.selected_object_id);
                                 ImGui::TreeNodeSetOpen(ImGui::GetID(buf), false);
                                 _spritePanel->closeWindow();
                             }
-                            model.object_selected_idx = n;
-                        }
-                        if (model.object_selected_idx == n) {
+                        } else {
                             // draw object property table
-                            drawObjectPropertyTable(n, wEventObjectID, pObject);
+                            drawObjectPropertyTable(wEventObjectID, pObject);
                             // add button to focus object
                             char buf[128];
                             sprintf(buf, "聚焦##%d", wEventObjectID);
                             if (ImGui::Button(buf, { 100.f, 0.f })) {
                                 _engine->getScene()->centerObject(wEventObjectID, pObject);
+                                gpHoveredObject = wEventObjectID;
                             }
                         }
                     }
+                    if (ImGui::IsItemToggledOpen()) {
+                        model.selected_object_id = wEventObjectID;
+                    }
+
                     ImGui::Unindent();
                 }
+                model.object_id_to_open = -1;
             }
             ImGui::EndListBox();
         }
@@ -229,8 +244,13 @@ void ScenePanel::render()
 
 bool ScenePanel::init()
 {
-    _spritePanel = new SpritePanel(800, 600, "SpriteViewer", false, _engine);
+    _spritePanel = new SpritePanel(_parent, 800, 600, "SpriteViewer", false, _engine);
     return true;
+}
+
+void ScenePanel::setInspectObjectId(int objectId)
+{
+    model.object_id_to_open = objectId;
 }
 
 } // namespace editor

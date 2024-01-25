@@ -14,6 +14,7 @@ struct PALINPUTSTATE;
 #define MAX_SPRITE_TO_DRAW 2048
 
 typedef struct tagSPRITE_TO_DRAW {
+    int i;
     LPCBITMAPRLE lpSpriteFrame; // pointer to the frame bitmap
     PAL_POS pos; // position on the scene
     int iLayer; // logical layer
@@ -40,7 +41,7 @@ public:
     void centerObject(WORD wEventObjectID, engine::LPEVENTOBJECT pObject);
 
 private:
-    void addSpriteToDraw(LPCBITMAPRLE lpSpriteFrame, int x, int y, int iLayer);
+    void addSpriteToDraw(int i, LPCBITMAPRLE lpSpriteFrame, int x, int y, int iLayer);
     void calcCoverTiles(SPRITE_TO_DRAW* lpSpriteToDraw);
 
 private:

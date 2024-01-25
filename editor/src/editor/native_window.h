@@ -54,7 +54,7 @@ public:
     T* createImGuiPanel(SubPanels key, Args... args)
     {
         assert(_imgui_panels.find(key) == _imgui_panels.end());
-        T* w = new T(args...);
+        T* w = new T(this, args...);
         if (!w->init()) {
             UTIL_LogOutput(LOGLEVEL_ERROR, "init window failed !");
             delete w;
@@ -62,6 +62,13 @@ public:
         }
         _imgui_panels[key] = w;
         return w;
+    }
+
+    template<typename T>
+    T* getImGuiPanel(SubPanels key) {
+        if (!_imgui_panels.count(key))
+            return nullptr;
+        return dynamic_cast<T*>(_imgui_panels[key]); 
     }
 
     void render() override;

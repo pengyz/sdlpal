@@ -16,13 +16,14 @@ class SpritePanel;
 
 struct ScenePanelModel {
     int item_current_idx = 0;
-    int object_selected_idx = -1;
+    int selected_object_id = -1;
+    int object_id_to_open = -1;
 };
 
 class ScenePanel : public Window {
 
 public:
-    ScenePanel(int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
+    ScenePanel(Window* parent, int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
     ~ScenePanel();
     /**
      * @brief 渲染逻辑
@@ -32,8 +33,10 @@ public:
 
     virtual bool init() override;
 
+    void setInspectObjectId(int objectId);
+    
 private:
-    void drawObjectPropertyTable(int n, WORD wEventObjectID, engine::LPEVENTOBJECT pObject);
+    void drawObjectPropertyTable(WORD wEventObjectID, engine::LPEVENTOBJECT pObject);
 
 private:
     ScenePanelModel model;
