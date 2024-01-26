@@ -13,6 +13,7 @@ namespace editor {
 struct SpritePanelModel {
     WORD spriteObjectId = -1;
     SDL_Texture* texture = nullptr;
+    SDL_Texture* prev_texture = nullptr;
     bool sprite_review_open = false;
     ImVec2 texture_size;
     float texture_scale = 2.0f;

@@ -17,6 +17,13 @@ namespace engine {
  * @brief game engine implementation
  *
  */
+
+enum TileMapLayers {
+    TileMapLayers_0,
+    TileMapLayers_1,
+    TileMapLayers_all,
+};
+
 class PalEngine {
 public:
     PalEngine();
@@ -38,6 +45,8 @@ public:
 
     bool& getDrawSprite() { return _drawSprite; }
     bool& getDrawTileMap() { return _drawTileMap; }
+    bool& getDrawTileMapLines() { return _drawTileMapLines; }
+    int& getDrawTileLayers() { return _drawTileLayers; }
 
 private:
     PalGlobals* _globals = nullptr;
@@ -50,5 +59,7 @@ private:
     SDL_Renderer* _renderer = nullptr;
     bool _drawSprite = true;
     bool _drawTileMap = true;
+    bool _drawTileMapLines = false;
+    int _drawTileLayers = TileMapLayers_all;
 };
 }

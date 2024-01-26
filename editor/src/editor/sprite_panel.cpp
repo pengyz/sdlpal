@@ -1,4 +1,6 @@
 #include "sprite_panel.h"
+#include "3rd/SDL/include/SDL_render.h"
+#include "3rd/SDL/include/SDL_surface.h"
 #include "editor/gui_convertor.h"
 #include "engine/pal_engine.h"
 #include "global.h"
@@ -30,6 +32,11 @@ void SpritePanel::render()
         if (ImGui::Begin(_title.c_str(), &model.sprite_review_open)) {
             if (model.texture) {
                 ImGui::Image((ImTextureID)model.texture, model.texture_size);
+                if (model.prev_texture) {
+                    // free previous texture
+                    SDL_DestroyTexture(model.prev_texture);
+                    model.prev_texture = nullptr;
+                }
                 ImGui::SameLine();
             }
             if (ImGui::BeginTable("##SpritePropertyTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_RowBg)) {
@@ -41,8 +48,9 @@ void SpritePanel::render()
                 addPropertyReadonly("spriteFrames", _pObject->nSpriteFrames);
                 addPropertySelectable(obj_direction_converter, "direction", _pObject->wDirection, value_changed);
                 addPropertyEditable(
-                    "currFrame", _pObject->wCurrentFrameNum, nullptr, std::function<bool(WORD)>([this](WORD val) {
-                        return val >= 0 && val < _pObject->nSpriteFrames;
+                    "currFrame", _pObject->wCurrentFrameNum, nullptr, std::function<bool(WORD)>([this, value_changed](WORD val) {
+                        bool valid = val >= 0 && val < _pObject->nSpriteFrames;
+                        return valid;
                     }));
             }
             ImGui::EndTable();
@@ -63,7 +71,7 @@ inline BYTE calcShadowColor(BYTE bSourceColor)
     return ((bSourceColor & 0xF0) | ((bSourceColor & 0x0F) >> 1));
 }
 
-INT RLEBlitToSurfaceWithShadow(LPCBITMAPRLE lpBitmapRLE, SDL_Surface* lpDstSurface, PAL_POS pos, BOOL bShadow)
+INT RLEBlitToSurfaceWithShadow(LPCBITMAPRLE lpBitmapRLE, SDL_Surface* lpDstSurface, PAL_POS pos, BOOL bShadow, bool clean)
 {
     UINT i, j, k, sx;
     INT x, y;
@@ -175,12 +183,12 @@ INT RLEBlitToSurfaceWithShadow(LPCBITMAPRLE lpBitmapRLE, SDL_Surface* lpDstSurfa
                 if (bShadow) {
                     j += k;
                     for (; k != 0; k--) {
-                        p[x] = calcShadowColor(p[x]);
+                        p[x] = clean ? 0 : calcShadowColor(p[x]);
                         x++;
                     }
                 } else {
                     for (; k != 0; k--) {
-                        p[x] = lpBitmapRLE[j];
+                        p[x] = clean ? 0 : lpBitmapRLE[j];
                         j++;
                         x++;
                     }
@@ -215,22 +223,7 @@ end:
 void SpritePanel::updateSpriteTexture(WORD eventObjectId, engine::LPEVENTOBJECT pObject)
 {
     int spriteWidth = 0, spriteHeight = 0;
-    if (model.spriteObjectId == eventObjectId && model.texture) {
-        // already loaded.
-        return;
-    }
-    if (model.spriteObjectId != eventObjectId) {
-        // change texture
-        if (model.texture) {
-            if (SDL_QueryTexture(model.texture, nullptr, nullptr, &spriteWidth, &spriteHeight)) {
-                return;
-            }
-            // update texture size
-            model.texture_size.x = (float)spriteWidth;
-            model.texture_size.y = (float)spriteHeight;
-        }
-        model.spriteObjectId = eventObjectId;
-    }
+    model.spriteObjectId = eventObjectId;
     LPSPRITE lpSprite = _engine->getResources()->getEventObjectSprite(eventObjectId);
     if (!lpSprite)
         return;
@@ -241,22 +234,15 @@ void SpritePanel::updateSpriteTexture(WORD eventObjectId, engine::LPEVENTOBJECT 
     // frame got
     int rle_width = PAL_RLEGetWidth(lpFrame);
     int rle_height = PAL_RLEGetHeight(lpFrame);
-    if ((spriteWidth && abs(spriteWidth - rle_width * model.texture_scale) > 0.01) || (spriteHeight && abs(spriteHeight - rle_height * model.texture_scale) > 0.01)) {
-        SDL_DestroyTexture(model.texture);
-        model.texture = nullptr;
+    bool rebuild_texture = false;
+    if (model.texture && (abs(model.texture_size.x - rle_width * model.texture_scale) > 0.01 || abs(model.texture_size.y - rle_height * model.texture_scale) > 0.01)) {
+        // destroy and create texture
+        rebuild_texture = true;
     }
-    if (!model.texture) {
-        model.texture_size.x = (float)rle_width * model.texture_scale;
-        model.texture_size.y = (float)rle_height * model.texture_scale;
-        model.texture = SDL_CreateTexture(_engine->getRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-            model.texture_size.x, model.texture_size.y);
-    }
-    SDL_Surface* surface = NULL;
-    if (SDL_LockTextureToSurface(model.texture, nullptr, &surface)) {
-        if (model.texture) {
-            SDL_DestroyTexture(model.texture);
-            model.texture = nullptr;
-        }
+    model.texture_size.x = (float)rle_width * model.texture_scale;
+    model.texture_size.y = (float)rle_height * model.texture_scale;
+    SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, model.texture_size.x, model.texture_size.y, 8, 0, 0, 0, 0);
+    if (!surface) {
         return;
     }
     // set surface palette
@@ -276,15 +262,29 @@ void SpritePanel::updateSpriteTexture(WORD eventObjectId, engine::LPEVENTOBJECT 
     int posX = (model.texture_size.x - rle_width) / 2;
     int posY = (model.texture_size.y - rle_height) / 2;
     // draw RLE sprite to surface
-    int ret = RLEBlitToSurfaceWithShadow(lpFrame, surface, PAL_XY(posX, posY), false);
-    SDL_UnlockTexture(model.texture);
-    SDL_FreePalette(_palette);
-    if (ret) {
-        if (model.texture) {
-            SDL_DestroyTexture(model.texture);
-            model.texture = nullptr;
+    if (!RLEBlitToSurfaceWithShadow(lpFrame, surface, PAL_XY(posX, posY), false, false)) {
+        if (!model.texture || rebuild_texture) {
+            model.prev_texture = model.texture;
+            model.texture = SDL_CreateTextureFromSurface(_engine->getPalRenderer()->getRenderer(), surface);
+        } else {
+            // lock and copy
+            void* texture_pixels = nullptr;
+            int texture_pitch = 0;
+            if (0 == SDL_LockTexture(model.texture, nullptr, &texture_pixels, &texture_pitch)) {
+                uint8_t* src = (uint8_t*)surface->pixels;
+                int w, h;
+                SDL_QueryTexture(model.texture, nullptr, nullptr, &w, &h);
+                uint8_t* dist = (uint8_t*)texture_pixels;
+                for (int y = 0; y < h; y++, src += surface->pitch) {
+                    memcpy(dist, src, w << 2);
+                    dist += texture_pitch;
+                }
+                SDL_UnlockTexture(model.texture);
+            }
         }
     }
+    SDL_FreeSurface(surface);
+    SDL_FreePalette(_palette);
 }
 
 } // namespace editor

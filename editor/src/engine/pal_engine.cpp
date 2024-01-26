@@ -12,6 +12,10 @@
 extern int gpHighlightWidth;
 extern int gpHighlightPaletteIndex;
 
+namespace editor {
+INT RLEBlitToSurfaceWithShadow(LPCBITMAPRLE lpBitmapRLE, SDL_Surface* lpDstSurface, PAL_POS pos, BOOL bShadow, bool clean);
+}
+
 namespace engine {
 
 PalEngine::PalEngine()
@@ -53,6 +57,40 @@ void PalEngine::setRenderer(SDL_Renderer* renderer)
     _renderer = renderer;
 }
 
+void MapBlitToSurface(LPCPALMAP lpMap, SDL_Surface* lpSurface, const SDL_Rect* lpSrcRect, BYTE ucLayer, bool clean)
+{
+    int sx, sy, dx, dy, x, y, h, xPos, yPos;
+    LPCBITMAPRLE lpBitmap = NULL;
+
+    //
+    // Convert the coordinate
+    //
+    sy = lpSrcRect->y / 16 - 1;
+    dy = (lpSrcRect->y + lpSrcRect->h) / 16 + 2;
+    sx = lpSrcRect->x / 32 - 1;
+    dx = (lpSrcRect->x + lpSrcRect->w) / 32 + 2;
+
+    //
+    // Do the drawing.
+    //
+    yPos = sy * 16 - 8 - lpSrcRect->y;
+    for (y = sy; y < dy; y++) {
+        for (h = 0; h < 2; h++, yPos += 8) {
+            xPos = sx * 32 + h * 16 - 16 - lpSrcRect->x;
+            for (x = sx; x < dx; x++, xPos += 32) {
+                lpBitmap = PAL_MapGetTileBitmap((BYTE)x, (BYTE)y, (BYTE)h, ucLayer, lpMap);
+                if (lpBitmap == NULL) {
+                    if (ucLayer) {
+                        continue;
+                    }
+                    lpBitmap = PAL_MapGetTileBitmap(0, 0, 0, ucLayer, lpMap);
+                }
+                editor::RLEBlitToSurfaceWithShadow(lpBitmap, lpSurface, PAL_XY(xPos, yPos), false, clean);
+            }
+        }
+    }
+}
+
 int PalEngine::runLoop()
 {
     DWORD dwTime = SDL_GetTicks();
@@ -87,10 +125,22 @@ int PalEngine::runLoop()
         SDL_Surface* pScreen = getPalRenderer()->getScreen();
         // PAL_MakeScene();
         if (_drawTileMap) {
-            gpHighlightWidth = 1;
-            gpHighlightPaletteIndex = 0;
-            PAL_MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 0);
-            PAL_MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 1);
+            if (_drawTileMapLines) {
+                gpHighlightWidth = 1;
+                gpHighlightPaletteIndex = 0;
+            }
+            if (_drawTileLayers == 0 || _drawTileLayers == 2) {
+                PAL_MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 0);
+            } else {
+                // clean
+                MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 0, true);
+            }
+            if (_drawTileLayers == 1 || _drawTileLayers == 2) {
+                PAL_MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 1);
+            } else {
+                // clean
+                MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 1, true);
+            }
             gpHighlightWidth = 0;
         } else {
             // paint black bg
@@ -98,8 +148,8 @@ int PalEngine::runLoop()
         }
         if (_drawSprite) {
             getScene()->drawSprites();
-            getScene()->updateParty(getInput()->getInputState());
         }
+        getScene()->updateParty(getInput()->getInputState());
         getPalRenderer()->updateScreen(nullptr);
 
         if (getGlobals()->getEnteringScene()) {

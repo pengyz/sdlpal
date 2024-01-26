@@ -13,6 +13,7 @@
 #include "util.h"
 #include <SDL.h>
 #include <cfloat>
+#include <cstdlib>
 #include <string>
 
 extern int gpHoveredObject;
@@ -142,16 +143,43 @@ void ScenePanel::render()
         showSceneList(model, _engine->getGlobals(), _engine->getResources());
         ImGui::SameLine();
         ImGui::Dummy({ 5, 0 });
-        ImGui::SameLine();
         ImGui::BeginGroup();
         ImGui::Checkbox("绘制地图", &_engine->getDrawTileMap());
         ImGui::SameLine();
         ImGui::Dummy({ 5, 0 });
         ImGui::SameLine();
         ImGui::Checkbox("绘制对象", &_engine->getDrawSprite());
+        ImGui::SameLine();
+        ImGui::Checkbox("显示地图块", &_engine->getDrawTileMapLines());
+        ImGui::SameLine();
+        auto getLayerName = [](int i) {
+            char buf[64];
+            if (i < engine::TileMapLayers_all) {
+                sprintf(buf, "layer %d", i);
+            } else {
+                sprintf(buf, "layer all");
+            }
+            return std::string(buf);
+        };
+        ImGui::Dummy({ 5, 0 });
+        ImGui::SameLine();
+        ImGui::Text("图层");
+        ImGui::SameLine();
+        if (ImGui::BeginCombo("##drawTileLayersList", getLayerName(_engine->getDrawTileLayers()).c_str(), ImGuiComboFlags_HeightLarge | ImGuiComboFlags_WidthFitPreview)) {
+            for (int i = 0; i <= engine::TileMapLayers_all; i++) {
+                auto name = getLayerName(i);
+                if (ImGui::Selectable(name.c_str(), _engine->getDrawTileLayers() == i)) {
+                    if (_engine->getDrawTileLayers() != i) {
+                        _engine->getDrawTileLayers() = i;
+                    }
+                }
+            }
+            ImGui::EndCombo();
+        }
         ImGui::EndGroup();
         // show scene details
-        engine::SCENE* pScene = &_engine->getGlobals()->getGameData().rgScene[model.item_current_idx];
+        engine::SCENE* pScene
+            = &_engine->getGlobals()->getGameData().rgScene[model.item_current_idx];
         if (ImGui::CollapsingHeader("地图详情"), ImGuiTreeNodeFlags_DefaultOpen) {
             if (ImGui::BeginTable("##mapDetails", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable)) {
                 // viewport
