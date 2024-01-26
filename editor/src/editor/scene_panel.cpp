@@ -136,6 +136,11 @@ void ScenePanel::drawObjectPropertyTable(WORD wEventObjectID, engine::LPEVENTOBJ
 
 void ScenePanel::render()
 {
+    static const char* layer_tooltips[] = {
+        "仅绘制规则图层，贴图为规则菱形",
+        "仅绘制不规则图层，贴图为不规则形状",
+        "绘制全部图层",
+    };
     ImGui::SetNextWindowSize(ImVec2(_width, _height), ImGuiCond_FirstUseEver);
     if (ImGui::Begin(_title.c_str(), nullptr)) {
         ImGui::LabelText("##title", "%s", "场景列表");
@@ -150,7 +155,7 @@ void ScenePanel::render()
         ImGui::SameLine();
         ImGui::Checkbox("绘制对象", &_engine->getDrawSprite());
         ImGui::SameLine();
-        ImGui::Checkbox("显示地图块", &_engine->getDrawTileMapLines());
+        ImGui::Checkbox("绘制图块线", &_engine->getDrawTileMapLines());
         ImGui::SameLine();
         auto getLayerName = [](int i) {
             char buf[64];
@@ -173,44 +178,48 @@ void ScenePanel::render()
                         _engine->getDrawTileLayers() = i;
                     }
                 }
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("%s", layer_tooltips[i]);
+                }
             }
             ImGui::EndCombo();
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("%s", layer_tooltips[_engine->getDrawTileLayers()]);
         }
         ImGui::EndGroup();
         // show scene details
         engine::SCENE* pScene
             = &_engine->getGlobals()->getGameData().rgScene[model.item_current_idx];
-        if (ImGui::CollapsingHeader("地图详情"), ImGuiTreeNodeFlags_DefaultOpen) {
-            if (ImGui::BeginTable("##mapDetails", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable)) {
-                // viewport
-                ImGui::TableNextColumn();
-                ImGui::Text("viewport");
-                ImGui::TableNextColumn();
-                int vals[2] = { PAL_X(_engine->getGlobals()->getViewport()), PAL_Y(_engine->getGlobals()->getViewport()) };
-                if (ImGui::InputInt2("##viewport", vals)) {
-                    _engine->getGlobals()->getViewport() = PAL_XY(vals[0], vals[1]);
-                }
-                addPropertyReadonly("enterScript", pScene->wScriptOnEnter, std::function<void(decltype(pScene->wScriptOnEnter))>([](decltype(pScene->wScriptOnEnter) entry) {
-                    if (entry) {
-                        ImGui::SameLine();
-                        if (ImGui::Button("查看##enter")) {
-                            // show script data
-                            printf("preview for script %d\n", entry);
-                        }
-                    }
-                }));
-                addPropertyReadonly("teleportScript", pScene->wScriptOnTeleport, std::function<void(decltype(pScene->wScriptOnTeleport))>([](decltype(pScene->wScriptOnTeleport) entry) {
-                    if (entry) {
-                        ImGui::SameLine();
-                        if (ImGui::Button("查看##teleport")) {
-                            // show script data
-                            printf("preview for script %d\n", entry);
-                        }
-                    }
-                }));
+        if (ImGui::BeginTable("##mapDetails", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Resizable)) {
+            // viewport
+            ImGui::TableNextColumn();
+            ImGui::Text("viewport");
+            ImGui::TableNextColumn();
+            int vals[2] = { PAL_X(_engine->getGlobals()->getViewport()), PAL_Y(_engine->getGlobals()->getViewport()) };
+            if (ImGui::InputInt2("##viewport", vals)) {
+                _engine->getGlobals()->getViewport() = PAL_XY(vals[0], vals[1]);
             }
-            ImGui::EndTable();
+            addPropertyReadonly("enterScript", pScene->wScriptOnEnter, std::function<void(decltype(pScene->wScriptOnEnter))>([](decltype(pScene->wScriptOnEnter) entry) {
+                if (entry) {
+                    ImGui::SameLine();
+                    if (ImGui::Button("查看##enter")) {
+                        // show script data
+                        printf("preview for script %d\n", entry);
+                    }
+                }
+            }));
+            addPropertyReadonly("teleportScript", pScene->wScriptOnTeleport, std::function<void(decltype(pScene->wScriptOnTeleport))>([](decltype(pScene->wScriptOnTeleport) entry) {
+                if (entry) {
+                    ImGui::SameLine();
+                    if (ImGui::Button("查看##teleport")) {
+                        // show script data
+                        printf("preview for script %d\n", entry);
+                    }
+                }
+            }));
         }
+        ImGui::EndTable();
 
         if (ImGui::CollapsingHeader("对象列表")) {
             if (ImGui::BeginListBox("##ObjectList", { -FLT_MIN, -FLT_MIN })) {
@@ -221,7 +230,6 @@ void ScenePanel::render()
                 }
                 for (WORD wEventObjectID = beginObjectIndex; wEventObjectID <= endObjectIndex; wEventObjectID++) {
                     engine::LPEVENTOBJECT pObject = &_engine->getGlobals()->getGameData().lprgEventObject[wEventObjectID - 1];
-                    // WORD n = wEventObjectID - beginObjectIndex;
                     char buf[128];
                     sprintf(buf, "objectId: %d", wEventObjectID);
                     int flags = 0;
@@ -253,6 +261,9 @@ void ScenePanel::render()
                             if (ImGui::Button(buf, { 100.f, 0.f })) {
                                 _engine->getScene()->centerObject(wEventObjectID, pObject);
                                 gpHoveredObject = wEventObjectID;
+                            }
+                            if (ImGui::IsItemHovered()) {
+                                ImGui::SetTooltip("在场景面板中选中对象");
                             }
                         }
                     }

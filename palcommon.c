@@ -42,9 +42,6 @@ PAL_RLEBlitToSurface(
     return PAL_RLEBlitToSurfaceWithShadow ( lpBitmapRLE, lpDstSurface, pos, FALSE );
 }
 
-int gpHighlightWidth = 0;
-int gpHighlightPaletteIndex = -1;
-
 INT
 PAL_RLEBlitToSurfaceWithShadow(
    LPCBITMAPRLE      lpBitmapRLE,
@@ -207,18 +204,9 @@ PAL_RLEBlitToSurfaceWithShadow(
             }
             else
             {
-               int k_start = k;
                for (; k != 0; k--)
                {
-                  if (gpHighlightWidth && gpHighlightPaletteIndex >= 0 && gpHighlightPaletteIndex < 256) {
-                     if (((k - k_start) < gpHighlightWidth) || (k <= gpHighlightWidth)) {
-                        p[x] = gpHighlightPaletteIndex;
-                     } else {
-                        p[x] = lpBitmapRLE[j];
-                     }
-                  } else {
-                     p[x] = lpBitmapRLE[j];
-                  }
+                  p[x] = lpBitmapRLE[j];
                   j++;
                   x++;
                }

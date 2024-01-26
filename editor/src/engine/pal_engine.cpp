@@ -6,15 +6,9 @@
 #include "game.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
+#include "pal_common.h"
 #include "script.h"
 #include "util.h"
-
-extern int gpHighlightWidth;
-extern int gpHighlightPaletteIndex;
-
-namespace editor {
-INT RLEBlitToSurfaceWithShadow(LPCBITMAPRLE lpBitmapRLE, SDL_Surface* lpDstSurface, PAL_POS pos, BOOL bShadow, bool clean);
-}
 
 namespace engine {
 
@@ -85,7 +79,7 @@ void MapBlitToSurface(LPCPALMAP lpMap, SDL_Surface* lpSurface, const SDL_Rect* l
                     }
                     lpBitmap = PAL_MapGetTileBitmap(0, 0, 0, ucLayer, lpMap);
                 }
-                editor::RLEBlitToSurfaceWithShadow(lpBitmap, lpSurface, PAL_XY(xPos, yPos), false, clean);
+                RLEBlitToSurfaceWithShadow(lpBitmap, lpSurface, PAL_XY(xPos, yPos), false, clean);
             }
         }
     }
@@ -129,19 +123,11 @@ int PalEngine::runLoop()
                 gpHighlightWidth = 1;
                 gpHighlightPaletteIndex = 0;
             }
-            if (_drawTileLayers == 0 || _drawTileLayers == 2) {
-                PAL_MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 0);
-            } else {
-                // clean
-                MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 0, true);
-            }
-            if (_drawTileLayers == 1 || _drawTileLayers == 2) {
-                PAL_MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 1);
-            } else {
-                // clean
-                MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 1, true);
-            }
+            MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 0, _drawTileLayers == 1);
+            MapBlitToSurface(getResources()->getCurrentMap(), pScreen, &rect, 1, _drawTileLayers == 0);
             gpHighlightWidth = 0;
+            // draw pass bitmap
+            // _scene->checkObstacle(PAL_POS pos, bool fCheckEventObjects, WORD wSelfObject)
         } else {
             // paint black bg
             SDL_FillRect(pScreen, nullptr, 0);

@@ -1,11 +1,10 @@
 #include "pal_scene.h"
 #include "3rd/SDL/include/SDL_pixels.h"
 #include "3rd/SDL/include/SDL_surface.h"
-#include "common.h"
+#include "engine/pal_common.h"
 #include "global.h"
 #include "pal_input.h"
 #include "pal_resources.h"
-#include "palcommon.h"
 #include "palette.h"
 #include "res.h"
 #include <iostream>
@@ -13,8 +12,6 @@
 extern bool gpHighlightHoverSprites;
 extern int gpHoverPosX;
 extern int gpHoverPosY;
-extern int gpHighlightWidth;
-extern int gpHighlightPaletteIndex;
 int gpHoveredObject = -1;
 
 namespace engine {
@@ -529,21 +526,20 @@ void PalScene::drawSprites()
 
         bool spriteHovered = false;
         if (gpHighlightHoverSprites) {
-            if (spriteHitTest(p->lpSpriteFrame, _renderer->getScreen(), PAL_XY(x, y), gpHoverPosX, gpHoverPosY) ||
-             (gpHoveredObject != -1 && gpHoveredObject == p->i + 1)) {
+            if (spriteHitTest(p->lpSpriteFrame, _renderer->getScreen(), PAL_XY(x, y), gpHoverPosX, gpHoverPosY) || (gpHoveredObject != -1 && gpHoveredObject == p->i + 1)) {
                 // rect hit
                 spriteHovered = true;
             }
         }
 
         if (spriteHovered) {
-            gpHighlightWidth = 1;
-            gpHighlightPaletteIndex = 255;
+            engine::gpHighlightWidth = 1;
+            engine::gpHighlightPaletteIndex = 255;
             gpHoveredObject = p->i + 1;
         }
-        PAL_RLEBlitToSurface(p->lpSpriteFrame, _renderer->getScreen(), PAL_XY(x, y));
+        engine::RLEBlitToSurfaceWithShadow(p->lpSpriteFrame, _renderer->getScreen(), PAL_XY(x, y), false, false);
         if (spriteHovered) {
-            gpHighlightWidth = 0;
+            engine::gpHighlightWidth = 0;
         }
     }
 }
