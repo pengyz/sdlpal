@@ -13,3 +13,6 @@
 [submodule "editor/deps/imgui"]
 	path = editor/deps/imgui
 	url = git@github.com:ocornut/imgui.git
+[submodule "editor/deps/ImGuiColorTextEdit"]
+	path = editor/deps/ImGuiColorTextEdit
+	url = https://github.com/pengyz/ImGuiColorTextEdit.git

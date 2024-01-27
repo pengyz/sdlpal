@@ -1,6 +1,7 @@
 #pragma once
 
 #include "window.h"
+#include "TextEditor.h"
 
 namespace engine {
 class PalEngine;
@@ -22,5 +23,6 @@ public:
 
 private:
     engine::PalEngine* _engine = nullptr;
+    TextEditor _editor;
 };
 } // namespace editor

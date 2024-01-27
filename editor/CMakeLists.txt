@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.12)
 
 project(sdlpal_editor)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 14 REQUIRED)
+set(CMAKE_C_STANDARD 99 REQUIRED)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-strict-aliasing -D_GNU_SOURCE -g -Wall")
 add_definitions("-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer")
@@ -185,6 +185,20 @@ target_link_libraries(game PUBLIC
 
 set(IMGUI_PATH ${CMAKE_SOURCE_DIR}/deps/imgui)
 
+# ImGuiColorTextEditor
+add_library(ImGuiColorTextEditor
+    ${CMAKE_SOURCE_DIR}/deps/ImGuiColorTextEdit/TextEditor.h
+    ${CMAKE_SOURCE_DIR}/deps/ImGuiColorTextEdit/TextEditor.cpp
+)
+
+target_link_libraries(ImGuiColorTextEditor PUBLIC
+    imgui_sdlrenderer
+)
+
+target_include_directories(ImGuiColorTextEditor PUBLIC
+    ${CMAKE_SOURCE_DIR}/deps/ImGuiColorTextEdit/
+)
+
 # imgui_sdlrenderer
 add_library(imgui_sdlrenderer STATIC
     ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer2.cpp
@@ -234,4 +248,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     GL
     imgui_sdlrenderer
     stb_image
+    ImGuiColorTextEditor
 )
