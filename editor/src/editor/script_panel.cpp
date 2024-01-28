@@ -86,6 +86,7 @@ void ScriptPanel::render()
 
 bool ScriptPanel::init()
 {
+#if 0
     ///////////////////////////////////////////////////////////////////////
     // TEXT EDITOR SAMPLE
     auto lang = TextEditor::LanguageDefinition::CPlusPlus();
@@ -159,6 +160,7 @@ bool ScriptPanel::init()
             _editor.SetText(str);
         }
     }
+#endif
     return true;
 }
 

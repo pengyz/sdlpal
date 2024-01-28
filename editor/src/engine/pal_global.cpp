@@ -550,4 +550,36 @@ CODEPAGE PalGlobals::detectCodePage(const char* filename)
     return cp;
 }
 
+WORD PalGlobals::getPlayerBattleSprite(WORD wPlayerRole)
+{
+    int i;
+    WORD w;
+
+    w = _globals->g.PlayerRoles.rgwSpriteNumInBattle[wPlayerRole];
+
+    for (i = 0; i <= MAX_PLAYER_EQUIPMENTS; i++) {
+        if (_globals->rgEquipmentEffect[i].rgwSpriteNumInBattle[wPlayerRole] != 0) {
+            w = _globals->rgEquipmentEffect[i].rgwSpriteNumInBattle[wPlayerRole];
+        }
+    }
+
+    return w;
+}
+
+void PalGlobals::clearAllPlayerStatus()
+{
+    int i, j;
+
+    for (i = 0; i < MAX_PLAYER_ROLES; i++) {
+        for (j = 0; j < kStatusAll; j++) {
+            //
+            // Don't remove effects of equipments
+            //
+            if (_globals->rgPlayerStatus[i][j] <= 999) {
+                _globals->rgPlayerStatus[i][j] = 0;
+            }
+        }
+    }
+}
+
 }

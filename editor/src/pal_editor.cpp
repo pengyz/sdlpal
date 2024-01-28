@@ -3,6 +3,7 @@
 #include "3rd/SDL/include/SDL_video.h"
 #include "audio.h"
 #include "common.h"
+#include "editor/editor_meta.h"
 #include "engine/pal_engine.h"
 #include "engine/pal_global.h"
 #include "engine/pal_resources.h"
@@ -15,13 +16,6 @@
 #include "util.h"
 #include <imgui.h>
 #include <iostream>
-
-extern "C" {
-extern VOID PAL_InitGlobalGameData(VOID);
-extern VOID PAL_LoadDefaultGame(VOID);
-VOID PAL_SceneDrawSprites(VOID);
-VOID PAL_DialogWaitForKey(VOID);
-}
 
 namespace editor {
 
@@ -73,6 +67,11 @@ bool PALEditor::init()
     _mainWindow = _engine->createWindow(1600, 900, "pal editor");
     if (!_engine->init()) {
         UTIL_LogOutput(LOGLEVEL_ERROR, "initalize engine failed !");
+        return false;
+    }
+
+    if (!editor::EditorMeta::get().load()) {
+        UTIL_LogOutput(LOGLEVEL_ERROR, "load editor configs failed !");
         return false;
     }
 

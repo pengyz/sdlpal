@@ -3,6 +3,7 @@
 #include "audio.h"
 #include "common.h"
 #include "editor/native_window.h"
+#include "engine/pal_input.h"
 #include "game.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
@@ -15,6 +16,7 @@ namespace engine {
 PalEngine::PalEngine()
     : _globals(new PalGlobals())
     , _resources(new engine::PalResources(_globals))
+    , _fight(new PalFight(_globals))
 {
 }
 
@@ -32,6 +34,15 @@ PalEngine::~PalEngine()
         delete _resources;
     if (_mainWindow) {
         delete _mainWindow;
+    }
+    if (_fight) {
+        delete _fight;
+    }
+    if (_video) {
+        delete _video;
+    }
+    if (_battle) {
+        delete _battle;
     }
 }
 
@@ -174,6 +185,8 @@ bool PalEngine::init()
     }
     _scene = new engine::PalScene(_globals, _resources, _palRenderer);
     _input = new engine::PalInput(_palRenderer);
+    _video = new engine::PalVideo(_palRenderer);
+    _battle = new engine::PalBattle(_globals, _palRenderer, _video, _fight, _scene);
     // only load scene and playerSprite
     _resources->setLoadFlags(engine::kLoadScene | engine::kLoadPlayerSprite);
     // init engine

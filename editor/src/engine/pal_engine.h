@@ -1,11 +1,14 @@
 #pragma once
 #include "3rd/SDL/include/SDL_render.h"
+#include "pal_battle.h"
+#include "pal_fight.h"
 #include "pal_global.h"
 #include "pal_input.h"
 #include "pal_renderer.h"
 #include "pal_resources.h"
 #include "pal_scene.h"
 #include "pal_script.h"
+#include "pal_video.h"
 #include <string>
 
 namespace editor {
@@ -41,6 +44,10 @@ public:
     PalRenderer* getPalRenderer() { return _palRenderer; }
     PalScene* getScene() { return _scene; }
     PalInput* getInput() { return _input; }
+    PalFight* getFight() { return _fight; }
+    PalVideo* getVideo() { return _video; }
+    PalBattle* getBattle() { return _battle; }
+
     SDL_Renderer* getRenderer() { return _renderer; }
 
     bool& getDrawSprite() { return _drawSprite; }
@@ -54,6 +61,9 @@ private:
     PalRenderer* _palRenderer = nullptr;
     PalScene* _scene = nullptr;
     PalInput* _input = nullptr;
+    PalFight* _fight = nullptr;
+    PalVideo* _video = nullptr;
+    PalBattle* _battle = nullptr;
     editor::NativeWindow* _mainWindow = nullptr;
 
     SDL_Renderer* _renderer = nullptr;

@@ -66,6 +66,8 @@ public:
 
     SDL_Renderer* getRenderer() const { return _renderer; }
 
+    SDL_Palette* getPalette() { return _palette; }
+
     void present();
 
     void erase(int r, int g, int b, int a);

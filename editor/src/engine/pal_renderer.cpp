@@ -1,4 +1,5 @@
 #include "pal_renderer.h"
+#include "3rd/SDL/include/SDL_pixels.h"
 #include "3rd/SDL/include/SDL_render.h"
 #include "3rd/SDL/include/SDL_surface.h"
 #include "3rd/SDL/include/SDL_video.h"

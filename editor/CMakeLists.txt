@@ -14,7 +14,6 @@ add_subdirectory(deps/SDL EXCLUDE_FROM_ALL)
 add_subdirectory(deps/stb_image EXCLUDE_FROM_ALL)
 add_subdirectory(tools/script_viewer)
 
-
 # oggvorbis
 file(GLOB_RECURSE  oggvorbis_FILES
     ${CMAKE_SOURCE_DIR}/../liboggvorbis/*.c
@@ -241,6 +240,7 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/src/
+    ${CMAKE_SOURCE_DIR}/deps/rapidjson/include/
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC

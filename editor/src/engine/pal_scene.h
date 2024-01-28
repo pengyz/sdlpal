@@ -40,6 +40,8 @@ public:
      */
     void centerObject(WORD wEventObjectID, engine::LPEVENTOBJECT pObject);
 
+    void applyWave(SDL_Surface* lpSurface);
+
 private:
     void addSpriteToDraw(int i, LPCBITMAPRLE lpSpriteFrame, int x, int y, int iLayer);
     void calcCoverTiles(SPRITE_TO_DRAW* lpSpriteToDraw);

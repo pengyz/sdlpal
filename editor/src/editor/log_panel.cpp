@@ -1,5 +1,6 @@
 #include "log_panel.h"
 #include "engine/pal_engine.h"
+#include "engine/pal_log.h"
 #include "global.h"
 #include "imgui.h"
 #include "util.h"
@@ -69,61 +70,28 @@ LogPanel::~LogPanel()
 
 void LogPanel::ClearLog()
 {
-    for (int i = 0; i < Items.Size; i++)
-        free(Items[i]);
-    Items.clear();
+    engine::PalLog::get().clearLog();
 }
 
-void LogPanel::AddLog(LogLevel level, const char* fmt, ...)
+void LogPanel::AddLog(engine::LogLevel level, const char* fmt, ...)
 {
     // FIXME-OPT
-    char buf[1024];
     va_list args;
     va_start(args, fmt);
     AddLogAp(level, fmt, args);
     va_end(args);
 }
 
-const char* LogPanel::getLevelStr(LogLevel level)
+void LogPanel::AddLogAp(engine::LogLevel level, const char* fmt, va_list args)
 {
-    switch (level) {
-    case LogLevel::debug: {
-        return "[debug] ";
-    } break;
-    case LogLevel::info: {
-        return "[ info] ";
-    } break;
-    case LogLevel::warn: {
-        return "[ warn] ";
-    } break;
-    case LogLevel::error: {
-        return "[error] ";
-    } break;
-    default:
-        return "";
-    }
-}
-
-void LogPanel::AddLogAp(LogLevel level, const char* fmt, va_list args)
-{
-    char buf[2048];
-    char* start = buf;
-    const char* prefix = getLevelStr(level);
-    int prefix_len = strlen(prefix);
-    if (prefix && prefix_len) {
-        memcpy(buf, prefix, strlen(prefix));
-        start += prefix_len;
-    }
-    vsnprintf(start, IM_ARRAYSIZE(buf) - prefix_len, fmt, args);
-    buf[IM_ARRAYSIZE(buf) - 1] = 0;
-    Items.push_back(Strdup(buf));
+    engine::PalLog::get().addLogAp(level, fmt, args);
 }
 
 void LogPanel::AddLog(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    AddLogAp(LogLevel::info, fmt, args);
+    AddLogAp(engine::LogLevel::info, fmt, args);
     va_end(args);
 }
 
@@ -203,7 +171,7 @@ void LogPanel::render()
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
         if (copy_to_clipboard)
             ImGui::LogToClipboard();
-        for (const char* item : Items) {
+        for (const char* item : engine::PalLog::get().getItems()) {
             if (!Filter.PassFilter(item))
                 continue;
 

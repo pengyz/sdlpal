@@ -1,7 +1,10 @@
 #include "scene_panel.h"
 #include "3rd/SDL/include/SDL_render.h"
 #include "3rd/SDL/include/SDL_surface.h"
+#include "common.h"
+#include "editor_meta.h"
 #include "engine/pal_engine.h"
+#include "engine/pal_log.h"
 #include "global.h"
 #include "gui_convertor.h"
 #include "gui_template.h"
@@ -14,6 +17,7 @@
 #include <SDL.h>
 #include <cfloat>
 #include <cstdlib>
+#include <iostream>
 #include <string>
 
 extern int gpHoveredObject;
@@ -34,10 +38,22 @@ ScenePanel::~ScenePanel()
     }
 }
 
+static bool genMapName(char* buf, const engine::LPSCENE pScene, int n)
+{
+    const char* mapName = EditorMeta::get().getMapName(n);
+    if (!strlen(mapName)) {
+        sprintf(buf, "%.3d mapNum: %d", n, pScene->wMapNum);
+        return false;
+    } else {
+        sprintf(buf, "%.3d %s mapNum: %.3d", n, mapName, pScene->wMapNum);
+        return true;
+    }
+}
+
 void showSceneList(ScenePanelModel& model, engine::PalGlobals* globals, engine::PalResources* resources)
 {
     char preview_value[128] = { 0 };
-    sprintf(preview_value, "%.3d mapNum: %d", model.item_current_idx, globals->getGameData().rgScene[model.item_current_idx].wMapNum);
+    genMapName(preview_value, &globals->getGameData().rgScene[model.item_current_idx], model.item_current_idx);
     ImGui::Text("地图选择:");
     ImGui::SameLine();
     if (ImGui::BeginCombo("##scenes", preview_value, ImGuiComboFlags_HeightLarge | ImGuiComboFlags_WidthFitPreview)) {
@@ -47,7 +63,7 @@ void showSceneList(ScenePanelModel& model, engine::PalGlobals* globals, engine::
                 break;
             const bool is_selected = (model.item_current_idx == n);
             char buf[128];
-            sprintf(buf, "%.3d mapNum: %d", n, pScene->wMapNum);
+            genMapName(buf, pScene, n);
             if (ImGui::Selectable(buf, is_selected)) {
                 if (n != model.item_current_idx) {
                     model.item_current_idx = n;
@@ -64,6 +80,29 @@ void showSceneList(ScenePanelModel& model, engine::PalGlobals* globals, engine::
             }
         }
         ImGui::EndCombo();
+    }
+    ImGui::SameLine();
+    // edit name
+    if (ImGui::Button("修改地图名##editMapName")) {
+        // popup editor
+        ImGui::OpenPopup("mapName_popup");
+    }
+    if (ImGui::BeginPopup("mapName_popup")) {
+        char mapName[64];
+        memset(mapName, 0, IM_ARRAYSIZE(mapName));
+        const char* name = EditorMeta::get().getMapName(model.item_current_idx);
+        if (strlen(name)) {
+            strcpy(mapName, name);
+        }
+        ImGui::Text("地图名:");
+        ImGui::SameLine();
+        if (ImGui::InputText("##map name", mapName, IM_ARRAYSIZE(mapName), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll)) {
+            engine::PalLog::get().addLog(engine::LogLevel::info, "new map name: %s", mapName);
+            EditorMeta::get().setMapName(model.item_current_idx, mapName);
+            EditorMeta::get().sync();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
     }
 }
 
@@ -274,8 +313,8 @@ void ScenePanel::render()
                     ImGui::Unindent();
                 }
                 model.object_id_to_open = -1;
+                ImGui::EndListBox();
             }
-            ImGui::EndListBox();
         }
     }
     ImGui::End();

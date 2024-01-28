@@ -3,6 +3,7 @@
 #include "SDL_error.h"
 #include "SDL_render.h"
 #include "common.h"
+#include "enemy_panel.h"
 #include "engine/pal_engine.h"
 #include "engine/pal_input.h"
 #include "engine/pal_renderer.h"
@@ -23,10 +24,6 @@
 #include <cstdarg>
 #include <iostream>
 
-extern SDL_Window* gpWindow;
-extern SDL_Renderer* gpRenderer;
-extern void (*g_outside_event_handler)(const SDL_Event*);
-
 namespace editor {
 
 NativeWindow::NativeWindow(engine::PalEngine* engine, int width, int height, const std::string& title)
@@ -37,7 +34,7 @@ NativeWindow::NativeWindow(engine::PalEngine* engine, int width, int height, con
     _window = SDL_CreateWindow(_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _width,
         _height, PAL_VIDEO_INIT_FLAGS);
     if (!_window) {
-        addLog(LogLevel::error, "SDL_CreateWindow Failed: %s", SDL_GetError());
+        addLog(engine::LogLevel::error, "SDL_CreateWindow Failed: %s", SDL_GetError());
         assert(false && "SDL_CreateWindow failed !");
     }
     _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -50,13 +47,14 @@ bool NativeWindow::init()
 
     // init imgui
     if (!_initImGui(_engine->getRenderer())) {
-        addLog(LogLevel::error, "initImGui failed !");
+        addLog(engine::LogLevel::error, "initImGui failed !");
         return false;
     }
 
     // 创建窗口
     createImGuiPanel<FilePanel>(SubPanels::file, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "file", _model._file_panel, _engine);
     createImGuiPanel<ScenePanel>(SubPanels::scene, 800, 600, "scenes", _model._scene_panel, _engine);
+    createImGuiPanel<EnemyPanel>(SubPanels::enemy, 800, 600, "enemy", _model._enemy_panel, _engine);
     createImGuiPanel<ScriptPanel>(SubPanels::script, 800, 600, "script", _model._script_panel, _engine);
     createImGuiPanel<GamePanel>(SubPanels::game, SCENE_WIDTH * 1.2, SCENE_HEIGHT * 1.2, "game", true, _engine);
     createImGuiPanel<LogPanel>(SubPanels::log, 800, 600, "Logs", _model._log_panel, _engine);
@@ -87,7 +85,7 @@ void NativeWindow::_paintMainMenuBar()
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Open File", "Alt + o", nullptr)) {
-                addLog(LogLevel::error, "Open File clicked !");
+                addLog(engine::LogLevel::error, "Open File clicked !");
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("Open a new file");
@@ -100,32 +98,32 @@ void NativeWindow::_paintMainMenuBar()
                 "show",
             };
             if (ImGui::MenuItem("Reset", "Alt + r", nullptr)) {
-                addLog(LogLevel::error, "Reset all panels.");
+                addLog(engine::LogLevel::error, "Reset all panels.");
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("Reset all editor panels");
             }
             if (ImGui::MenuItem("File Panel", "Alt + f", &_model._file_panel)) {
-                addLog(LogLevel::info, "%s file panel.", window_visible[_model._file_panel]);
+                addLog(engine::LogLevel::info, "%s file panel.", window_visible[_model._file_panel]);
                 if (_model._file_panel != _imgui_panels[SubPanels::file]->getVisible()) {
                     _imgui_panels[SubPanels::file]->setVisible(_model._file_panel);
                 }
             }
             if (ImGui::MenuItem("Scene Panel", "Alt + n", &_model._scene_panel)) {
-                addLog(LogLevel::info, "%s scene panel.", window_visible[_model._scene_panel]);
+                addLog(engine::LogLevel::info, "%s scene panel.", window_visible[_model._scene_panel]);
                 if (_model._scene_panel != _imgui_panels[SubPanels::scene]->getVisible()) {
                     _imgui_panels[SubPanels::scene]->setVisible(_model._scene_panel);
                 }
             }
             if (ImGui::MenuItem("Script Panel", "Alt + s", &_model._script_panel)) {
-                addLog(LogLevel::info, "%s script panel.", window_visible[_model._script_panel]);
+                addLog(engine::LogLevel::info, "%s script panel.", window_visible[_model._script_panel]);
                 if (_model._script_panel != _imgui_panels[SubPanels::script]->getVisible()) {
                     _imgui_panels[SubPanels::script]->setVisible(_model._script_panel);
                 }
             }
             ImGui::MenuItem("ImGui Demo", "Alt + d", &_model._demo_window);
             if (ImGui::MenuItem("Log Panel", "Alt + l", &_model._log_panel)) {
-                addLog(LogLevel::info, "%s log panel.", window_visible[_model._log_panel]);
+                addLog(engine::LogLevel::info, "%s log panel.", window_visible[_model._log_panel]);
                 if (_model._log_panel != _imgui_panels[SubPanels::log]->getVisible()) {
                     _imgui_panels[SubPanels::log]->setVisible(_model._log_panel);
                 }
@@ -180,7 +178,7 @@ bool NativeWindow::_initImGui(SDL_Renderer* renderer)
     // write a double backslash \\ !
     io.Fonts->AddFontDefault();
     auto font = io.Fonts->AddFontFromFileTTF("./resources/wqy-micro-hei-mono.ttf", 14, nullptr,
-        io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+        io.Fonts->GetGlyphRangesChineseFull());
     IM_ASSERT(font != nullptr);
     io.FontDefault = font;
     // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
@@ -226,7 +224,7 @@ int NativeWindow::resizingEventWatcher(void* data, SDL_Event* event)
     return 0;
 }
 
-bool NativeWindow::addLog(editor::LogLevel level, const char* fmt, ...)
+bool NativeWindow::addLog(engine::LogLevel level, const char* fmt, ...)
 {
     auto panel = getImGuiPanel<LogPanel>(SubPanels::log);
     char buf[2048];
@@ -237,10 +235,10 @@ bool NativeWindow::addLog(editor::LogLevel level, const char* fmt, ...)
     } else {
         char buf[2048];
         char* start = buf;
-        const char* prefix = LogPanel::getLevelStr(level);
+        const char* prefix = engine::PalLog::getLevelStr(level);
         int prefix_len = strlen(prefix);
         if (prefix && prefix_len) {
-           std::cout << prefix;
+            std::cout << prefix;
         }
         vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
         std::cout << buf << std::endl;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "window.h"
+#include "engine/pal_log.h"
 #include <cstdarg>
 
 namespace engine {
@@ -8,13 +9,6 @@ class PalEngine;
 }
 
 namespace editor {
-
-enum class LogLevel {
-    debug,
-    info,
-    warn,
-    error,
-};
 
 class LogPanel : public Window {
 public:
@@ -30,11 +24,9 @@ public:
 
     void ClearLog();
 
-    void AddLogAp(LogLevel level, const char* fmt, va_list ap);
+    void AddLogAp(engine::LogLevel level, const char* fmt, va_list ap);
 
-    static const char* getLevelStr(LogLevel level);
-
-    void AddLog(LogLevel level, const char* fmt, ...) IM_FMTARGS(3);
+    void AddLog(engine::LogLevel level, const char* fmt, ...) IM_FMTARGS(3);
 
     void AddLog(const char* fmt, ...) IM_FMTARGS(2);
 
@@ -45,7 +37,6 @@ public:
 private:
     engine::PalEngine* _engine = nullptr;
     char InputBuf[256];
-    ImVector<char*> Items;
     ImVector<const char*> Commands;
     ImVector<char*> History;
     int HistoryPos; // -1: new line, 0..History.Size-1 browsing history.

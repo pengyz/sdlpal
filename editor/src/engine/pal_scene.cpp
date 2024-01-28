@@ -597,8 +597,8 @@ void PalScene::calcCoverTiles(SPRITE_TO_DRAW* lpSpriteToDraw)
     int x, y, i, l, iTileHeight;
     LPCBITMAPRLE lpTile;
 
-    const int sx = PAL_X(gpGlobals->viewport) + PAL_X(lpSpriteToDraw->pos) - lpSpriteToDraw->iLayer / 2;
-    const int sy = PAL_Y(gpGlobals->viewport) + PAL_Y(lpSpriteToDraw->pos) - lpSpriteToDraw->iLayer;
+    const int sx = PAL_X(_globals->getViewport()) + PAL_X(lpSpriteToDraw->pos) - lpSpriteToDraw->iLayer / 2;
+    const int sy = PAL_Y(_globals->getViewport()) + PAL_Y(lpSpriteToDraw->pos) - lpSpriteToDraw->iLayer;
     const int sh = ((sx % 32) ? 1 : 0);
 
     const int width = PAL_RLEGetWidth(lpSpriteToDraw->lpSpriteFrame);
@@ -662,14 +662,81 @@ void PalScene::calcCoverTiles(SPRITE_TO_DRAW* lpSpriteToDraw)
                         // This tile may cover the sprite
                         //
                         addSpriteToDraw(-1, lpTile,
-                            dx * 32 + dh * 16 - 16 - PAL_X(gpGlobals->viewport),
-                            dy * 16 + dh * 8 + 7 + l + iTileHeight * 8 - PAL_Y(gpGlobals->viewport),
+                            dx * 32 + dh * 16 - 16 - PAL_X(_globals->getViewport()),
+                            dy * 16 + dh * 8 + 7 + l + iTileHeight * 8 - PAL_Y(_globals->getViewport()),
                             iTileHeight * 8 + l);
                     }
                 }
             }
         }
     }
+}
+
+void PalScene::applyWave(SDL_Surface* lpSurface)
+{
+    int wave[32];
+    int i, a, b;
+    static int index = 0;
+    LPBYTE p;
+    BYTE buf[320];
+
+    _globals->getScreenWave() += _globals->getWaveProgression();
+
+    if (_globals->getScreenWave() == 0 || _globals->getScreenWave() >= 256) {
+        //
+        // No need to wave the screen
+        //
+        _globals->getScreenWave() = 0;
+        _globals->getWaveProgression() = 0;
+        return;
+    }
+
+    //
+    // Calculate the waving offsets.
+    //
+    a = 0;
+    b = 60 + 8;
+
+    for (i = 0; i < 16; i++) {
+        b -= 8;
+        a += b;
+
+        //
+        // WARNING: assuming the screen width is 320
+        //
+        wave[i] = a * _globals->getScreenWave() / 256;
+        wave[i + 16] = 320 - wave[i];
+    }
+
+    //
+    // Apply the effect.
+    // WARNING: only works with 320x200 8-bit surface.
+    //
+    a = index;
+    p = (LPBYTE)(lpSurface->pixels);
+
+    //
+    // Loop through all lines in the screen buffer.
+    //
+    for (i = 0; i < 200; i++) {
+        b = wave[a];
+
+        if (b > 0) {
+            //
+            // Do a shift on the current line with the calculated offset.
+            //
+            memcpy(buf, p, b);
+            // memmove(p, p + b, 320 - b);
+            memmove(p, &p[b], 320 - b);
+            // memcpy(p + 320 - b, buf, b);
+            memcpy(&p[320 - b], buf, b);
+        }
+
+        a = (a + 1) % 32;
+        p += lpSurface->pitch;
+    }
+
+    index = (index + 1) % 32;
 }
 
 }

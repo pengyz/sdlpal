@@ -27,6 +27,7 @@ enum class SubPanels {
     script,
     sprites,
     log,
+    enemy,
 };
 
 namespace editor {
@@ -39,6 +40,7 @@ class EditorModel {
 public:
     bool _file_panel = true; // 默认显示
     bool _scene_panel = true; //默认显示
+    bool _enemy_panel = true; //默认显示
     bool _script_panel = false; // 默认不显示
     bool _demo_window = false; // demo 默认不显示
     bool _log_panel = true; // log 默认展示
@@ -59,7 +61,7 @@ public:
         assert(_imgui_panels.find(key) == _imgui_panels.end());
         T* w = new T(this, args...);
         if (!w->init()) {
-            addLog(editor::LogLevel::error, "init window failed !");
+            addLog(engine::LogLevel::error, "init window failed !");
             delete w;
             return nullptr;
         }
@@ -81,7 +83,7 @@ public:
 
     engine::PalEngine* getEngine() { return _engine; }
 
-    bool addLog(editor::LogLevel level, const char* fmt, ...) IM_FMTARGS(3);
+    bool addLog(engine::LogLevel level, const char* fmt, ...) IM_FMTARGS(3);
 
 protected:
     static int resizingEventWatcher(void* data, SDL_Event* event);

@@ -16,3 +16,6 @@
 [submodule "editor/deps/ImGuiColorTextEdit"]
 	path = editor/deps/ImGuiColorTextEdit
 	url = https://github.com/pengyz/ImGuiColorTextEdit.git
+[submodule "editor/deps/rapidjson"]
+	path = editor/deps/rapidjson
+	url = https://github.com/Tencent/rapidjson.git

@@ -591,30 +591,37 @@ public:
     void loadDefaultGame();
     void updateEquipments();
     CODEPAGE detectCodePage(const char* filename);
+    WORD getPlayerBattleSprite(WORD wPlayerRole);
+    void clearAllPlayerStatus();
 
 public:
-#define IMPL_GLOBAL_GETTER_REF(func, val, type) \
-    inline type& get##func() { return _globals->val; }
-#define IMPL_GLOBAL_GETTER_PTR(func, val, type) \
-    inline type* get##func() { return _globals->val; }
+#define IMPL_GLOBAL_GETTER_REF(func, val) \
+    inline auto& get##func() { return _globals->val; }
+#define IMPL_GLOBAL_GETTER_PTR(func, val) \
+    inline auto* get##func() { return _globals->val; }
     // getters
     GAMEDATA& getGameData() { return _globals->g; }
     FILES& getFiles() { return _globals->f; }
-    IMPL_GLOBAL_GETTER_REF(CurrentSaveSlot, bCurrentSaveSlot, BYTE)
-    IMPL_GLOBAL_GETTER_REF(NumMusic, wNumMusic, WORD)
-    IMPL_GLOBAL_GETTER_REF(EnteringScene, fEnteringScene, BOOL)
-    IMPL_GLOBAL_GETTER_REF(ScreenWave, wScreenWave, WORD)
-    IMPL_GLOBAL_GETTER_REF(WaveProgression, sWaveProgression, SHORT)
-    IMPL_GLOBAL_GETTER_REF(NumScene, wNumScene, WORD)
-    IMPL_GLOBAL_GETTER_REF(Partyoffset, partyoffset, PAL_POS)
-    IMPL_GLOBAL_GETTER_REF(MaxPartyMemberIndex, wMaxPartyMemberIndex, WORD)
-    IMPL_GLOBAL_GETTER_PTR(rgParty, rgParty, PARTY)
-    IMPL_GLOBAL_GETTER_REF(Follower, nFollower, USHORT)
-    IMPL_GLOBAL_GETTER_REF(InMainGame, fInMainGame, BOOL)
-    IMPL_GLOBAL_GETTER_REF(Viewport, viewport, PAL_POS)
-    IMPL_GLOBAL_GETTER_REF(PartyDirection, wPartyDirection, WORD)
-    IMPL_GLOBAL_GETTER_PTR(rgTrail, rgTrail, TRAIL)
-    IMPL_GLOBAL_GETTER_REF(Layer, wLayer, WORD)
+    IMPL_GLOBAL_GETTER_REF(CurrentSaveSlot, bCurrentSaveSlot)
+    IMPL_GLOBAL_GETTER_REF(NumMusic, wNumMusic)
+    IMPL_GLOBAL_GETTER_REF(EnteringScene, fEnteringScene)
+    IMPL_GLOBAL_GETTER_REF(ScreenWave, wScreenWave)
+    IMPL_GLOBAL_GETTER_REF(WaveProgression, sWaveProgression)
+    IMPL_GLOBAL_GETTER_REF(NumScene, wNumScene)
+    IMPL_GLOBAL_GETTER_REF(Partyoffset, partyoffset)
+    IMPL_GLOBAL_GETTER_REF(MaxPartyMemberIndex, wMaxPartyMemberIndex)
+    IMPL_GLOBAL_GETTER_PTR(rgParty, rgParty)
+    IMPL_GLOBAL_GETTER_REF(Follower, nFollower)
+    IMPL_GLOBAL_GETTER_REF(InMainGame, fInMainGame)
+    IMPL_GLOBAL_GETTER_REF(Viewport, viewport)
+    IMPL_GLOBAL_GETTER_REF(PartyDirection, wPartyDirection)
+    IMPL_GLOBAL_GETTER_PTR(rgTrail, rgTrail)
+    IMPL_GLOBAL_GETTER_REF(Layer, wLayer)
+    IMPL_GLOBAL_GETTER_REF(NumBattleField, wNumBattleField)
+    IMPL_GLOBAL_GETTER_REF(rgPlayerStatus, rgPlayerStatus)
+    IMPL_GLOBAL_GETTER_REF(Exp, Exp)
+    IMPL_GLOBAL_GETTER_PTR(rgInventory, rgInventory)
+    IMPL_GLOBAL_GETTER_REF(InBattle, fInBattle)
 
 private:
     void readGlobalGameData();

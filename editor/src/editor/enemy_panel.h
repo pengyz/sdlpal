@@ -14,17 +14,15 @@ class PalEngine;
 namespace editor {
 class SpritePanel;
 
-struct ScenePanelModel {
-    int item_current_idx = 0;
-    int selected_object_id = -1;
-    int object_id_to_open = -1;
+struct EmemyPanelModel {
+    int selected_enemy_id = -1;
 };
 
-class ScenePanel : public Window {
+class EnemyPanel : public Window {
 
 public:
-    ScenePanel(Window* parent, int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
-    ~ScenePanel();
+    EnemyPanel(Window* parent, int width, int height, const std::string& title, bool visible, engine::PalEngine* engine);
+    ~EnemyPanel();
     /**
      * @brief 渲染逻辑
      *
@@ -33,13 +31,21 @@ public:
 
     virtual bool init() override;
 
-    void setInspectObjectId(int objectId);
+
+    /**
+     * @brief update enemy sprite
+     * 
+     * @param wEnemyObjectID 
+     */
+    void updateEnemySprite(WORD wEnemyObjectID);
 
 private:
     void drawObjectPropertyTable(WORD wEventObjectID, engine::LPEVENTOBJECT pObject);
+    void drawEnemyPropertyTable(int idx, engine::OBJECT_ENEMY* pEnemy);
+    void drawEnemyBattlePropertyTable(int idx, engine::LPENEMY pEnemy);
 
 private:
-    ScenePanelModel model;
+    EmemyPanelModel model;
     engine::PalEngine* _engine = nullptr;
     SpritePanel* _spritePanel = nullptr;
 };
