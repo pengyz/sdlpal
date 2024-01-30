@@ -475,7 +475,7 @@ void PalScene::drawSprites()
         y += lpEvtObj->sLayer * 8 + 9;
 
         vy = y - PAL_RLEGetHeight(lpFrame) - lpEvtObj->sLayer * 8 + 2;
-        if (vy >= 200 || vy < -(int)PAL_RLEGetHeight(lpFrame)) {
+        if (vy >= SCENE_HEIGHT || vy < -(int)PAL_RLEGetHeight(lpFrame)) {
             //
             // outside the screen; skip it
             //
